@@ -38,6 +38,8 @@ class _RetroCarHelpLiteState extends State<RetroCarHelpLite> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
+          title: Text("Retro car: notes"),
+          centerTitle: true,
           backgroundColor: Colors.black,
           elevation: 0,
         ),
