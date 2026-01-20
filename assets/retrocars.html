@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+    />
+    <title>Retronotes Garage Tracker</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+
+    <!-- Icons -->
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ["system-ui", "sans-serif"],
+              },
+              colors: {
+                retro: {
+                  bg: "#020617",
+                  card: "#020617",
+                  cardSoft: "#030712",
+                  cardBorder: "#1e293b",
+                  primary: "#ff4d4d",
+                  secondary: "#4d96ff",
+                  text: "#e2e8f0",
+                  muted: "#64748b",
+                },
+              },
+            },
+          },
+        };
+    </script>
+
+    <style>
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+        }
+
+        .device-frame {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+
+        .device-inner {
+          position: relative;
+          width: 100%;
+          max-width: 1000px;
+          height: 100vh;
+          max-height: 900px;
+          border-radius: 32px;
+          background: radial-gradient(circle at top left, #1f2937 0, #020617 60%);
+          box-shadow: 0 40px 120px rgba(0, 0, 0, 0.9);
+          color: #e2e8f0;
+          overflow: hidden;
+        }
+
+        .app-scroll {
+          height: 100%;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .glass-top {
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .glass-bottom {
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
+          backdrop-filter: blur(18px);
+          border-top: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .tab-page {
+          display: none;
+          padding: 1.5rem 1.25rem 5.5rem;
+        }
+        .tab-page.active {
+          display: block;
+        }
+
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.78);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+        }
+
+        input,
+        textarea,
+        select {
+          outline: none;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-retro-text">
+<div class="device-frame">
+    <div class="device-inner">
+        <div class="app-scroll">
+            <!-- HEADER -->
+            <header
+                    id="app-header"
+                    class="glass-top fixed top-0 inset-x-0 mx-auto h-16 flex items-center justify-between px-6 z-40"
+                    style="max-width: 1000px"
+            >
+                <div class="flex items-center gap-3">
+                    <div
+                            class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-retro-primary via-red-500 to-orange-400 flex items-center justify-center shadow-lg"
+                    >
+                        <i class="fa-solid fa-car-side text-white text-base"></i>
+                    </div>
+                    <div class="leading-tight">
+                        <div class="font-extrabold text-lg tracking-wider">
+                            RETRO<span class="text-retro-secondary">NOTES</span>
+                        </div>
+                        <div class="text-[10px] text-retro-muted -mt-[2px]">
+                            Garage tracker
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button
+                            id="header-search"
+                            class="w-9 h-9 rounded-full bg-retro-card border border-retro-cardBorder text-retro-muted hover:text-white flex items-center justify-center text-sm"
+                            title="Search notes"
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <div
+                            class="w-9 h-9 rounded-full border-2 border-retro-cardBorder overflow-hidden"
+                    >
+                        <img
+                                src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&w=80"
+                                class="w-full h-full object-cover"
+                                alt="avatar"
+                        />
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN -->
+            <main class="pt-16 pb-20 bg-retro-bg min-h-full">
+                <!-- GARAGE TAB -->
+                <section id="tab-garage" class="tab-page active">
+                    <div class="flex items-baseline justify-between mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">My Garage</h2>
+                            <p id="garage-summary" class="text-xs text-retro-muted">
+                                –
+                            </p>
+                        </div>
+                        <button
+                                id="btn-open-add-car"
+                                class="flex items-center gap-1 px-4 py-2 rounded-full bg-retro-secondary text-slate-950 text-xs font-semibold shadow-lg hover:brightness-105 active:scale-[0.97] transition"
+                        >
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            Add Car
+                        </button>
+                    </div>
+
+                    <div id="garage-list" class="space-y-5"></div>
+                </section>
+
+                <!-- NOTES TAB -->
+                <section id="tab-notes" class="tab-page">
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">Notes Timeline</h2>
+                            <p class="text-xs text-retro-muted">
+                                Work logs, ideas, parts & todos
+                            </p>
+                        </div>
+                        <button
+                                id="btn-open-add-note-global"
+                                class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-retro-secondary text-slate-950 text-xs font-semibold shadow hover:brightness-105 active:scale-[0.97] transition"
+                        >
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            Add Note
+                        </button>
+                    </div>
+
+                    <div class="relative mb-3">
+                        <i
+                                class="fa-solid fa-magnifying-glass text-xs text-retro-muted absolute left-3 top-1/2 -translate-y-1/2"
+                        ></i>
+                        <input
+                                id="notes-search"
+                                class="w-full bg-retro-card border border-retro-cardBorder rounded-xl py-2.5 pl-9 pr-3 text-xs placeholder:text-retro-muted"
+                                placeholder="Search notes, cars, tags…"
+                        />
+                    </div>
+
+                    <div
+                            class="flex items-center gap-2 text-[11px] text-retro-muted mb-2"
+                    >
+                        <button
+                                class="px-2 py-1 rounded-full bg-retro-card border border-retro-cardBorder text-[10px]"
+                        >
+                            <i class="fa-solid fa-filter text-[9px] mr-1"></i>Filter
+                        </button>
+                        <span class="flex-1 text-right">
+                Sorted by <span class="text-retro-text">Newest first</span>
+              </span>
+                    </div>
+
+                    <div id="notes-list" class="space-y-3 text-xs mb-4"></div>
+                </section>
+
+                <!-- ANALYTICS TAB -->
+                <section id="tab-analytics" class="tab-page">
+                    <h2 class="text-2xl font-bold mb-1">Analytics</h2>
+                    <p class="text-xs text-retro-muted mb-5">
+                        Spending, value & restoration progress
+                    </p>
+
+                    <!-- Summary cards -->
+                    <div class="grid grid-cols-2 gap-3 mb-5 text-xs">
+                        <div
+                                class="bg-retro-card border border-retro-cardBorder rounded-xl p-3 flex flex-col justify-between"
+                        >
+                            <div class="text-retro-muted mb-0.5">Garage value</div>
+                            <div id="total-value" class="text-lg font-semibold">$0</div>
+                            <div class="text-[10px] text-emerald-400 mt-0.5">
+                                <i class="fa-solid fa-arrow-trend-up mr-1"></i>sample
+                                +12% YTD
+                            </div>
+                        </div>
+                        <div
+                                class="bg-retro-card border border-retro-cardBorder rounded-xl p-3 flex flex-col justify-between"
+                        >
+                            <div class="text-retro-muted mb-0.5">Total spending</div>
+                            <div id="total-spent" class="text-lg font-semibold">
+                                $28,450
+                            </div>
+                            <div class="text-[10px] text-retro-muted mt-0.5">
+                                Lifetime expenses (sample)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pie -->
+                    <div
+                            class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5"
+                    >
+                        <div
+                                class="flex justify-between items-center mb-3 text-xs"
+                        >
+                            <div class="font-semibold">Spending by category</div>
+                            <span class="text-retro-muted text-[11px]"
+                            >Sample this year</span
+                            >
+                        </div>
+                        <div id="analytics-pie" class="w-full" style="height: 220px"></div>
+                    </div>
+
+                    <!-- Line -->
+                    <div
+                            class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5"
+                    >
+                        <div
+                                class="flex justify-between items-center mb-3 text-xs"
+                        >
+                            <div class="font-semibold">Monthly expenses</div>
+                            <span class="text-retro-muted text-[11px]"
+                            >Last 6 months (sample)</span
+                            >
+                        </div>
+                        <div
+                                id="analytics-line"
+                                class="w-full"
+                                style="height: 220px"
+                        ></div>
+                    </div>
+                </section>
+
+                <!-- TOP CARS TAB -->
+                <section id="tab-top-cars" class="tab-page">
+                    <h2 class="text-2xl font-bold mb-4">Top Cars</h2>
+
+                    <div
+                            id="top-mode-switch"
+                            class="flex bg-retro-card border border-retro-cardBorder rounded-xl p-1 text-xs mb-4"
+                    >
+                        <button
+                                class="flex-1 py-1.5 rounded-lg bg-retro-secondary text-slate-950 font-semibold"
+                                data-mode="cost"
+                        >
+                            Cost / Value
+                        </button>
+                        <button
+                                class="flex-1 py-1.5 rounded-lg text-retro-muted"
+                                data-mode="spending"
+                        >
+                            Spending
+                        </button>
+                        <button
+                                class="flex-1 py-1.5 rounded-lg text-retro-muted"
+                                data-mode="age"
+                        >
+                            Age
+                        </button>
+                    </div>
+
+                    <div
+                            id="top-highlight"
+                            class="relative bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-4 overflow-hidden min-h-[90px]"
+                    >
+                        <div
+                                class="absolute -right-10 -bottom-10 w-40 h-40 bg-retro-secondary/20 rounded-full blur-3xl"
+                        ></div>
+                        <div class="relative z-10 text-xs">
+                            <div
+                                    id="top-highlight-badge"
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full bg-retro-secondary/20 text-retro-secondary font-semibold text-[10px] mb-2"
+                            >
+                                <i class="fa-solid fa-crown mr-1"></i>Most valuable
+                            </div>
+                            <div
+                                    id="top-highlight-title"
+                                    class="text-lg font-semibold"
+                            >
+                                –
+                            </div>
+                            <div
+                                    id="top-highlight-main"
+                                    class="text-2xl font-bold"
+                            >
+                                –
+                            </div>
+                            <div
+                                    id="top-highlight-sub"
+                                    class="text-[11px] text-retro-muted"
+                            >
+                                Add cars to see rankings
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="top-list" class="space-y-2 text-xs"></div>
+                </section>
+            </main>
+
+            <!-- BOTTOM NAV -->
+            <nav
+                    id="bottom-nav"
+                    class="glass-bottom fixed bottom-0 inset-x-0 mx-auto h-16 flex items-center justify-around px-4 z-40"
+                    style="max-width: 1000px"
+            >
+                <button
+                        class="nav-btn flex flex-col items-center text-retro-secondary text-[11px]"
+                        data-target="tab-garage"
+                >
+                    <i class="fa-solid fa-warehouse text-lg mb-0.5"></i>
+                    Garage
+                </button>
+                <button
+                        class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
+                        data-target="tab-notes"
+                >
+                    <i class="fa-regular fa-clipboard text-lg mb-0.5"></i>
+                    Notes
+                </button>
+                <button
+                        class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
+                        data-target="tab-analytics"
+                >
+                    <i class="fa-solid fa-chart-pie text-lg mb-0.5"></i>
+                    Analytics
+                </button>
+                <button
+                        class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
+                        data-target="tab-top-cars"
+                >
+                    <i class="fa-solid fa-trophy text-lg mb-0.5"></i>
+                    Top Cars
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ADD CAR -->
+<div id="modal-add-car" class="modal-backdrop hidden">
+    <div
+            class="w-full max-w-md mx-4 bg-retro-card border border-retro-cardBorder rounded-2xl p-5 text-xs shadow-2xl"
+    >
+        <div class="flex justify-between items-center mb-3">
+            <div class="font-semibold text-sm">Add Car</div>
+            <button
+                    data-close-modal="modal-add-car"
+                    class="text-retro-muted hover:text-retro-text text-sm"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="form-add-car" class="space-y-3">
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Car name</label
+                >
+                <input
+                        name="name"
+                        required
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                        placeholder="Ford Mustang '67"
+                />
+            </div>
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Subtitle (engine / trim)</label
+                >
+                <input
+                        name="subtitle"
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                        placeholder="Fastback GT · 390 V8"
+                />
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Year</label
+                    >
+                    <input
+                            name="year"
+                            type="number"
+                            required
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="1967"
+                    />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Value, $</label
+                    >
+                    <input
+                            name="value"
+                            type="number"
+                            min="0"
+                            required
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="14500"
+                    />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Notes count</label
+                    >
+                    <input
+                            name="notes"
+                            type="number"
+                            min="0"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="0"
+                    />
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Status</label
+                    >
+                    <select
+                            name="status"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                    >
+                        <option value="In restoration">In restoration</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Pending parts">Pending parts</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Last updated</label
+                    >
+                    <input
+                            name="updated"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="2d ago"
+                    />
+                </div>
+            </div>
+
+            <button
+                    type="submit"
+                    class="w-full mt-2 flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-retro-secondary text-slate-950 font-semibold hover:brightness-105 active:scale-[0.97] transition"
+            >
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                Add Car
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL ADD NOTE -->
+<div id="modal-add-note" class="modal-backdrop hidden">
+    <div
+            class="w-full max-w-md mx-4 bg-retro-card border border-retro-cardBorder rounded-2xl p-5 text-xs shadow-2xl"
+    >
+        <div class="flex justify-between items-center mb-3">
+            <div class="font-semibold text-sm">Add Note</div>
+            <button
+                    data-close-modal="modal-add-note"
+                    class="text-retro-muted hover:text-retro-text text-sm"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="form-add-note" class="space-y-3">
+            <input type="hidden" name="carId" />
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Car (e.g. Mustang '67)</label
+                >
+                <input
+                        name="carName"
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                        placeholder="Mustang '67"
+                />
+            </div>
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Title</label
+                >
+                <input
+                        name="title"
+                        required
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                        placeholder="Suspension rebuild kit installed"
+                />
+            </div>
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Details</label
+                >
+                <textarea
+                        name="body"
+                        rows="3"
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs resize-none"
+                        placeholder="What did you do, what’s next…"
+                ></textarea>
+            </div>
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Tags (comma separated)</label
+                >
+                <input
+                        name="tags"
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                        placeholder="suspension, parts, todo"
+                />
+            </div>
+
+            <button
+                    type="submit"
+                    class="w-full mt-2 flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-retro-secondary text-slate-950 font-semibold hover:brightness-105 active:scale-[0.97] transition"
+            >
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                Add Note
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ----------------- NAVIGATION -----------------
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const pages = document.querySelectorAll(".tab-page");
+
+    function showTab(id) {
+      pages.forEach((p) => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+
+      navButtons.forEach((b) => b.classList.remove("text-retro-secondary"));
+      const btn = document.querySelector(`.nav-btn[data-target="${id}"]`);
+      if (btn) btn.classList.add("text-retro-secondary");
+
+      if (id === "tab-analytics") {
+        setTimeout(() => {
+          initCharts();
+          resizeCharts();
+        }, 40);
+      }
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => showTab(btn.dataset.target));
+    });
+
+    // ----------------- DATA -----------------
+    let cars = [
+      {
+        id: "mustang",
+        name: "Ford Mustang '67",
+        subtitle: "Fastback GT · 390 V8",
+        status: "In restoration",
+        year: 1967,
+        value: 14500,
+        notes: 12,
+        updated: "2d ago",
+        hero: "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200",
+      },
+      {
+        id: "porsche",
+        name: "Porsche 911 (964)",
+        subtitle: "Turbo 3.6 · Oak Green",
+        status: "Complete",
+        year: 1991,
+        value: 8200,
+        notes: 45,
+        updated: "1w ago",
+        hero: "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&w=1200",
+      },
+    ];
+
+    let notes = [
+      {
+        id: 1,
+        carId: "mustang",
+        carName: "Mustang '67",
+        title: "Suspension rebuild kit installed",
+        body: "Upper & lower control arms, bushings, fresh alignment booked for Friday.",
+        tags: ["suspension", "parts"],
+        date: "Oct 14",
+      },
+      {
+        id: 2,
+        carId: "porsche",
+        carName: "Porsche 964",
+        title: "Valve adjustment",
+        body: "Adjusted valves, replaced valve cover gaskets, filled with 20W-50.",
+        tags: ["engine", "maintenance"],
+        date: "Oct 11",
+      },
+    ];
+
+    const statusStyles = {
+      "In restoration": "bg-gradient-to-r from-amber-400 to-orange-500 text-black",
+      Complete: "bg-emerald-400 text-black",
+      "Pending parts": "bg-sky-400 text-black",
+    };
+
+    // ----------------- GARAGE RENDER -----------------
+    function renderGarage() {
+      const list = document.getElementById("garage-list");
+      const summary = document.getElementById("garage-summary");
+      list.innerHTML = "";
+
+      const restorationCount = cars.filter((c) => c.status === "In restoration").length;
+      summary.textContent = `${cars.length} cars · ${restorationCount} Restoration Projects`;
+
+      cars.forEach((car) => {
+        const card = document.createElement("article");
+        card.className =
+          "bg-slate-950/40 border border-retro-cardBorder rounded-3xl overflow-hidden shadow-xl";
+
+        const hero = car.hero ||
+          "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200";
+
+        const statusClass =
+          statusStyles[car.status] || "bg-slate-600 text-white";
+
+        card.innerHTML = `
+          <div class="relative">
+            <img src="${hero}" alt="${car.name}" class="w-full h-44 md:h-56 object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+            <div class="absolute top-3 right-3">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-semibold ${statusClass}">
+                <i class="fa-solid fa-wrench mr-1 text-[9px]"></i>${car.status.toUpperCase()}
+              </span>
+            </div>
+            <div class="absolute left-4 bottom-4 right-4 flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+              <div>
+                <div class="text-xs text-slate-300 mb-0.5">${car.subtitle || ""}</div>
+                <div class="text-xl md:text-2xl font-bold">${car.name}</div>
+              </div>
+              <button
+                class="inline-flex items-center justify-center self-start md:self-auto gap-1 px-3 py-1.5 rounded-full bg-retro-secondary text-slate-950 text-[11px] font-semibold shadow-lg hover:brightness-105 active:scale-[0.97] transition add-note-from-car"
+                data-car-id="${car.id}"
+                data-car-name="${car.name}"
+              >
+                <i class="fa-solid fa-pen text-[9px]"></i>
+                Add Note
+              </button>
+            </div>
+          </div>
+
+          <div class="px-4 pt-3 pb-4 bg-slate-950/70">
+            <div class="grid grid-cols-3 gap-3 text-[11px] mb-3">
+              <div class="bg-slate-900/70 rounded-2xl px-3 py-2 flex flex-col justify-center">
+                <div class="text-slate-400 text-[10px] uppercase tracking-wide">Notes</div>
+                <div class="text-sm font-semibold">${car.notes ?? 0}</div>
+              </div>
+              <div class="bg-slate-900/70 rounded-2xl px-3 py-2 flex flex-col justify-center">
+                <div class="text-slate-400 text-[10px] uppercase tracking-wide">Cost</div>
+                <div class="text-sm font-semibold">$${(car.value || 0).toLocaleString()}</div>
+              </div>
+              <div class="bg-slate-900/70 rounded-2xl px-3 py-2 flex flex-col justify-center">
+                <div class="text-slate-400 text-[10px] uppercase tracking-wide">Updated</div>
+                <div class="text-sm font-semibold">${car.updated || "—"}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-400">
+              <div class="flex items-center gap-2">
+                <button class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center">
+                  <i class="fa-solid fa-gear text-[10px]"></i>
+                </button>
+                <button class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center">
+                  <i class="fa-solid fa-lock text-[10px]"></i>
+                </button>
+              </div>
+              <button class="text-retro-secondary hover:underline text-[11px]">
+                View Details
+              </button>
+            </div>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+
+      list.querySelectorAll(".add-note-from-car").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          openAddNoteModal({
+            carId: btn.dataset.carId,
+            carName: btn.dataset.carName,
+          });
+        });
+      });
+
+      updateAnalyticsSummary();
+      renderTopCars();
+    }
+
+    // ----------------- NOTES -----------------
+    function renderNotes(filter = "") {
+      const list = document.getElementById("notes-list");
+      list.innerHTML = "";
+
+      const q = filter.trim().toLowerCase();
+
+      notes
+        .slice()
+        .reverse()
+        .filter((n) => {
+          if (!q) return true;
+          const haystack =
+            (n.title +
+              " " +
+              (n.body || "") +
+              " " +
+              (n.carName || "") +
+              " " +
+              (n.tags || []).join(" ")).toLowerCase();
+          return haystack.includes(q);
+        })
+        .forEach((note) => {
+          const el = document.createElement("div");
+          el.className =
+            "bg-retro-card border border-retro-cardBorder rounded-xl p-3";
+
+          const tagsHtml =
+            note.tags && note.tags.length
+              ? `<div class="flex flex-wrap gap-1 mt-1">${note.tags
+                  .map(
+                    (t) =>
+                      `<span class="px-1.5 py-0.5 rounded-full bg-slate-800 text-[9px] text-slate-300">${t}</span>`
+                  )
+                  .join("")}</div>`
+              : "";
+
+          el.innerHTML = `
+            <div class="flex justify-between mb-1">
+              <span class="text-[10px] uppercase text-blue-400">${
+                note.carName || "General"
+              }</span>
+              <span class="text-[10px] text-retro-muted">${note.date}</span>
+            </div>
+            <div class="font-semibold mb-0.5">${note.title}</div>
+            <div class="text-retro-muted text-[11px]">
+              ${note.body || ""}
+            </div>
+            ${tagsHtml}
+          `;
+          list.appendChild(el);
+        });
+
+      if (!list.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "text-[11px] text-retro-muted text-center py-6";
+        empty.textContent =
+          "No notes yet. Add your first log from Garage or Notes tab.";
+        list.appendChild(empty);
+      }
+    }
+
+    document
+      .getElementById("notes-search")
+      .addEventListener("input", (e) => renderNotes(e.target.value));
+
+    // header search jumps to Notes
+    document
+      .getElementById("header-search")
+      .addEventListener("click", () => {
+        showTab("tab-notes");
+        setTimeout(
+          () => document.getElementById("notes-search").focus(),
+          80
+        );
+      });
+
+    // ----------------- MODALS -----------------
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    document.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", () => closeModal(btn.dataset.closeModal));
+    });
+
+    // close by clicking backdrop
+    document.querySelectorAll(".modal-backdrop").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        if (e.target === b) b.classList.add("hidden");
+      });
+    });
+
+    // ----------------- ADD CAR -----------------
+    document
+      .getElementById("btn-open-add-car")
+      .addEventListener("click", () => {
+        const f = document.getElementById("form-add-car");
+        f.reset();
+        openModal("modal-add-car");
+      });
+
+    document
+      .getElementById("form-add-car")
+      .addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+
+        const car = {
+          id: "car-" + Date.now(),
+          name: fd.get("name").trim() || "Untitled car",
+          subtitle: fd.get("subtitle") || "",
+          year: Number(fd.get("year")) || new Date().getFullYear(),
+          value: Number(fd.get("value")) || 0,
+          notes: Number(fd.get("notes")) || 0,
+          status: fd.get("status") || "In restoration",
+          updated: fd.get("updated") || "now",
+          hero:
+            "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200&rand=" +
+            Math.random(),
+        };
+
+        cars.push(car);
+        closeModal("modal-add-car");
+        renderGarage();
+      });
+
+    // ----------------- ADD NOTE -----------------
+    function openAddNoteModal(opts = {}) {
+      const form = document.getElementById("form-add-note");
+      form.reset();
+      form.carId.value = opts.carId || "";
+      form.carName.value = opts.carName || "";
+      openModal("modal-add-note");
+    }
+
+    document
+      .getElementById("btn-open-add-note-global")
+      .addEventListener("click", () => openAddNoteModal());
+
+    document
+      .getElementById("form-add-note")
+      .addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+
+        let carId = fd.get("carId");
+        let carName = (fd.get("carName") || "").trim();
+
+        if (!carName && carId) {
+          const car = cars.find((c) => c.id === carId);
+          if (car) carName = car.name;
+        }
+
+        const tags = (fd.get("tags") || "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+        });
+
+        const note = {
+          id: Date.now(),
+          carId: carId || null,
+          carName: carName || "General",
+          title: fd.get("title") || "Note",
+          body: fd.get("body") || "",
+          tags,
+          date: dateStr,
+        };
+
+        notes.push(note);
+
+        // bump car counters
+        if (note.carId) {
+          const car = cars.find((c) => c.id === note.carId);
+          if (car) {
+            car.notes = (car.notes || 0) + 1;
+            car.updated = "now";
+          }
+        } else if (note.carName) {
+          const car = cars.find(
+            (c) => c.name.toLowerCase() === note.carName.toLowerCase()
+          );
+          if (car) {
+            car.notes = (car.notes || 0) + 1;
+            car.updated = "now";
+          }
+        }
+
+        closeModal("modal-add-note");
+        renderNotes(document.getElementById("notes-search").value);
+        renderGarage();
+      });
+
+    // ----------------- ANALYTICS -----------------
+    function updateAnalyticsSummary() {
+      const totalValue = cars.reduce((sum, c) => sum + (c.value || 0), 0);
+      document.getElementById("total-value").textContent =
+        "$" + totalValue.toLocaleString();
+    }
+
+    let chartsInited = false;
+
+    function initCharts() {
+      if (chartsInited || !document.getElementById("analytics-pie")) return;
+      chartsInited = true;
+
+      // Pie
+      const pieData = [
+        {
+          type: "pie",
+          values: [12000, 7500, 5200, 3750],
+          labels: ["Engine / Drivetrain", "Body & Paint", "Interior", "Other"],
+          marker: {
+            colors: ["#4d96ff", "#ff4d4d", "#facc15", "#22c55e"],
+          },
+          textinfo: "label+percent",
+          textfont: { color: "#e2e8f0", size: 10 },
+          hole: 0.55,
+        },
+      ];
+
+      const pieLayout = {
+        margin: { t: 5, r: 5, b: 5, l: 5 },
+        showlegend: false,
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        height: 220,
+      };
+
+      Plotly.newPlot("analytics-pie", pieData, pieLayout, {
+        displayModeBar: false,
+        responsive: true,
+      });
+
+      // Line
+      const months = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"];
+      const mustang = [900, 1100, 1500, 600, 1300, 800];
+      const porsche = [0, 500, 700, 300, 200, 150];
+
+      const lineData = [
+        {
+          x: months,
+          y: mustang,
+          type: "scatter",
+          mode: "lines+markers",
+          name: "Mustang",
+          line: { color: "#ff4d4d", width: 2 },
+          marker: { size: 5 },
+        },
+        {
+          x: months,
+          y: porsche,
+          type: "scatter",
+          mode: "lines+markers",
+          name: "Porsche 964",
+          line: { color: "#4d96ff", width: 2 },
+          marker: { size: 5 },
+        },
+      ];
+
+      const lineLayout = {
+        margin: { t: 10, r: 10, b: 30, l: 40 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        xaxis: {
+          tickfont: { color: "#94a3b8", size: 10 },
+          showgrid: false,
+        },
+        yaxis: {
+          tickfont: { color: "#94a3b8", size: 10 },
+          gridcolor: "#1f2937",
+        },
+        legend: {
+          font: { color: "#e2e8f0", size: 9 },
+          orientation: "h",
+          y: -0.25,
+        },
+        height: 220,
+      };
+
+      Plotly.newPlot("analytics-line", lineData, lineLayout, {
+        displayModeBar: false,
+        responsive: true,
+      });
+    }
+
+    function resizeCharts() {
+      if (!chartsInited) return;
+      try {
+        Plotly.Plots.resize("analytics-pie");
+        Plotly.Plots.resize("analytics-line");
+      } catch (e) {
+        console.warn("resize error", e);
+      }
+    }
+    window.addEventListener("resize", resizeCharts);
+
+    // ----------------- TOP CARS -----------------
+    let topMode = "cost";
+
+    function renderTopCars() {
+      const list = document.getElementById("top-list");
+      const titleEl = document.getElementById("top-highlight-title");
+      const mainEl = document.getElementById("top-highlight-main");
+      const subEl = document.getElementById("top-highlight-sub");
+      const badgeEl = document.getElementById("top-highlight-badge");
+
+      list.innerHTML = "";
+
+      if (!cars.length) {
+        titleEl.textContent = "No cars yet";
+        mainEl.textContent = "–";
+        subEl.textContent = "Add cars in Garage to see rankings";
+        badgeEl.innerHTML =
+          '<i class="fa-solid fa-circle-info mr-1"></i>No data';
+        return;
+      }
+
+      const nowYear = new Date().getFullYear();
+      const spendingMap = { mustang: 14500, porsche: 8200 }; // sample
+
+      let sorted = [...cars];
+
+      if (topMode === "cost") {
+        sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
+      } else if (topMode === "spending") {
+        sorted.sort(
+          (a, b) => (spendingMap[b.id] || 0) - (spendingMap[a.id] || 0)
+        );
+      } else {
+        sorted.sort((a, b) => (a.year || nowYear) - (b.year || nowYear));
+      }
+
+      const best = sorted[0];
+
+      if (topMode === "cost") {
+        badgeEl.innerHTML =
+          '<i class="fa-solid fa-crown mr-1"></i>Most valuable';
+        titleEl.textContent = best.name;
+        mainEl.textContent = "$" + (best.value || 0).toLocaleString();
+        subEl.textContent = "Estimated market value";
+      } else if (topMode === "spending") {
+        badgeEl.innerHTML =
+          '<i class="fa-solid fa-fire mr-1"></i>Most money spent';
+        titleEl.textContent = best.name;
+        mainEl.textContent =
+          "$" + (spendingMap[best.id] || 0).toLocaleString();
+        subEl.textContent = "Sample lifetime spending";
+      } else {
+        const age = nowYear - (best.year || nowYear);
+        badgeEl.innerHTML =
+          '<i class="fa-solid fa-hourglass-half mr-1"></i>Oldest';
+        titleEl.textContent = best.name;
+        mainEl.textContent = age + " yrs";
+        subEl.textContent = `Since ${best.year}`;
+      }
+
+      sorted.forEach((car, idx) => {
+        const row = document.createElement("div");
+        row.className =
+          "flex items-center justify-between bg-retro-card border border-retro-cardBorder rounded-xl px-3 py-2";
+
+        let right;
+        if (topMode === "cost") {
+          right = "$" + (car.value || 0).toLocaleString();
+        } else if (topMode === "spending") {
+          right = "$" + (spendingMap[car.id] || 0).toLocaleString();
+        } else {
+          right = nowYear - (car.year || nowYear) + " yrs";
+        }
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-5 text-[11px] text-retro-muted">${idx + 1}</div>
+            <div>
+              <div class="text-xs font-semibold">${car.name}</div>
+              <div class="text-[10px] text-retro-muted">Year ${car.year}</div>
+            </div>
+          </div>
+          <div class="text-xs font-semibold">${right}</div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    document
+      .querySelectorAll("#top-mode-switch button")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#top-mode-switch button")
+            .forEach(
+              (b) =>
+                (b.className =
+                  "flex-1 py-1.5 rounded-lg text-retro-muted")
+            );
+          btn.className =
+            "flex-1 py-1.5 rounded-lg bg-retro-secondary text-slate-950 font-semibold";
+
+          topMode = btn.dataset.mode;
+          renderTopCars();
+        });
+      });
+
+    // ----------------- INIT -----------------
+    window.addEventListener("load", () => {
+      renderGarage();
+      renderNotes();
+      updateAnalyticsSummary();
+      initCharts();
+      renderTopCars();
+    });
+</script>
+</body>
+</html>
