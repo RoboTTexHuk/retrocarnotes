@@ -50,7 +50,12 @@
           margin: 0;
           padding: 0;
           height: 100%;
-          background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+          background: radial-gradient(
+            circle at top,
+            #111827 0,
+            #020617 55%,
+            #000 100%
+          );
         }
 
         .device-frame {
@@ -87,7 +92,11 @@
         }
 
         .glass-bottom {
-          background: linear-gradient(to top, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
+          background: linear-gradient(
+            to top,
+            rgba(15, 23, 42, 0.98),
+            rgba(15, 23, 42, 0.92)
+          );
           backdrop-filter: blur(18px);
           border-top: 1px solid rgba(148, 163, 184, 0.25);
         }
@@ -112,8 +121,14 @@
 
         input,
         textarea,
-        select {
+        select,
+        button {
           outline: none;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        button {
+          cursor: pointer;
         }
     </style>
 </head>
@@ -145,20 +160,41 @@
                 <div class="flex items-center gap-4">
                     <button
                             id="header-search"
+                            type="button"
                             class="w-9 h-9 rounded-full bg-retro-card border border-retro-cardBorder text-retro-muted hover:text-white flex items-center justify-center text-sm"
                             title="Search notes"
                     >
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
-                    <div
-                            class="w-9 h-9 rounded-full border-2 border-retro-cardBorder overflow-hidden"
+
+                    <!-- AVATAR: клик по нему меняет фото -->
+                    <button
+                            id="avatar-button"
+                            type="button"
+                            class="w-9 h-9 rounded-full border-2 border-retro-cardBorder overflow-hidden relative group"
+                            title="Change profile photo"
                     >
                         <img
+                                id="avatar-img"
                                 src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&w=80"
                                 class="w-full h-full object-cover"
                                 alt="avatar"
+                                draggable="false"
                         />
-                    </div>
+                        <div
+                                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-slate-200 transition-opacity"
+                        >
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </button>
+
+                    <!-- Скрытый input для загрузки фото -->
+                    <input
+                            id="avatar-input"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                    />
                 </div>
             </header>
 
@@ -169,12 +205,11 @@
                     <div class="flex items-baseline justify-between mb-4">
                         <div>
                             <h2 class="text-2xl font-bold mb-1">My Garage</h2>
-                            <p id="garage-summary" class="text-xs text-retro-muted">
-                                –
-                            </p>
+                            <p id="garage-summary" class="text-xs text-retro-muted">–</p>
                         </div>
                         <button
                                 id="btn-open-add-car"
+                                type="button"
                                 class="flex items-center gap-1 px-4 py-2 rounded-full bg-retro-secondary text-slate-950 text-xs font-semibold shadow-lg hover:brightness-105 active:scale-[0.97] transition"
                         >
                             <i class="fa-solid fa-plus text-[10px]"></i>
@@ -196,6 +231,7 @@
                         </div>
                         <button
                                 id="btn-open-add-note-global"
+                                type="button"
                                 class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-retro-secondary text-slate-950 text-xs font-semibold shadow hover:brightness-105 active:scale-[0.97] transition"
                         >
                             <i class="fa-solid fa-plus text-[10px]"></i>
@@ -214,17 +250,16 @@
                         />
                     </div>
 
-                    <div
-                            class="flex items-center gap-2 text-[11px] text-retro-muted mb-2"
-                    >
+                    <div class="flex items-center gap-2 text-[11px] text-retro-muted mb-2">
                         <button
+                                type="button"
                                 class="px-2 py-1 rounded-full bg-retro-card border border-retro-cardBorder text-[10px]"
                         >
                             <i class="fa-solid fa-filter text-[9px] mr-1"></i>Filter
                         </button>
                         <span class="flex-1 text-right">
-                Sorted by <span class="text-retro-text">Newest first</span>
-              </span>
+              Sorted by <span class="text-retro-text">Newest first</span>
+            </span>
                     </div>
 
                     <div id="notes-list" class="space-y-3 text-xs mb-4"></div>
@@ -237,7 +272,6 @@
                         Spending, value & restoration progress
                     </p>
 
-                    <!-- Summary cards -->
                     <div class="grid grid-cols-2 gap-3 mb-5 text-xs">
                         <div
                                 class="bg-retro-card border border-retro-cardBorder rounded-xl p-3 flex flex-col justify-between"
@@ -245,8 +279,7 @@
                             <div class="text-retro-muted mb-0.5">Garage value</div>
                             <div id="total-value" class="text-lg font-semibold">$0</div>
                             <div class="text-[10px] text-emerald-400 mt-0.5">
-                                <i class="fa-solid fa-arrow-trend-up mr-1"></i>sample
-                                +12% YTD
+                                <i class="fa-solid fa-arrow-trend-up mr-1"></i>sample +12% YTD
                             </div>
                         </div>
                         <div
@@ -262,13 +295,10 @@
                         </div>
                     </div>
 
-                    <!-- Pie -->
                     <div
                             class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5"
                     >
-                        <div
-                                class="flex justify-between items-center mb-3 text-xs"
-                        >
+                        <div class="flex justify-between items-center mb-3 text-xs">
                             <div class="font-semibold">Spending by category</div>
                             <span class="text-retro-muted text-[11px]"
                             >Sample this year</span
@@ -277,13 +307,10 @@
                         <div id="analytics-pie" class="w-full" style="height: 220px"></div>
                     </div>
 
-                    <!-- Line -->
                     <div
                             class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5"
                     >
-                        <div
-                                class="flex justify-between items-center mb-3 text-xs"
-                        >
+                        <div class="flex justify-between items-center mb-3 text-xs">
                             <div class="font-semibold">Monthly expenses</div>
                             <span class="text-retro-muted text-[11px]"
                             >Last 6 months (sample)</span
@@ -306,18 +333,21 @@
                             class="flex bg-retro-card border border-retro-cardBorder rounded-xl p-1 text-xs mb-4"
                     >
                         <button
+                                type="button"
                                 class="flex-1 py-1.5 rounded-lg bg-retro-secondary text-slate-950 font-semibold"
                                 data-mode="cost"
                         >
                             Cost / Value
                         </button>
                         <button
+                                type="button"
                                 class="flex-1 py-1.5 rounded-lg text-retro-muted"
                                 data-mode="spending"
                         >
                             Spending
                         </button>
                         <button
+                                type="button"
                                 class="flex-1 py-1.5 rounded-lg text-retro-muted"
                                 data-mode="age"
                         >
@@ -339,18 +369,10 @@
                             >
                                 <i class="fa-solid fa-crown mr-1"></i>Most valuable
                             </div>
-                            <div
-                                    id="top-highlight-title"
-                                    class="text-lg font-semibold"
-                            >
+                            <div id="top-highlight-title" class="text-lg font-semibold">
                                 –
                             </div>
-                            <div
-                                    id="top-highlight-main"
-                                    class="text-2xl font-bold"
-                            >
-                                –
-                            </div>
+                            <div id="top-highlight-main" class="text-2xl font-bold">–</div>
                             <div
                                     id="top-highlight-sub"
                                     class="text-[11px] text-retro-muted"
@@ -371,6 +393,7 @@
                     style="max-width: 1000px"
             >
                 <button
+                        type="button"
                         class="nav-btn flex flex-col items-center text-retro-secondary text-[11px]"
                         data-target="tab-garage"
                 >
@@ -378,6 +401,7 @@
                     Garage
                 </button>
                 <button
+                        type="button"
                         class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
                         data-target="tab-notes"
                 >
@@ -385,6 +409,7 @@
                     Notes
                 </button>
                 <button
+                        type="button"
                         class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
                         data-target="tab-analytics"
                 >
@@ -392,6 +417,7 @@
                     Analytics
                 </button>
                 <button
+                        type="button"
                         class="nav-btn flex flex-col items-center text-retro-muted text-[11px]"
                         data-target="tab-top-cars"
                 >
@@ -411,6 +437,7 @@
         <div class="flex justify-between items-center mb-3">
             <div class="font-semibold text-sm">Add Car</div>
             <button
+                    type="button"
                     data-close-modal="modal-add-car"
                     class="text-retro-muted hover:text-retro-text text-sm"
             >
@@ -420,9 +447,7 @@
 
         <form id="form-add-car" class="space-y-3">
             <div>
-                <label class="block text-[11px] text-retro-muted mb-1"
-                >Car name</label
-                >
+                <label class="block text-[11px] text-retro-muted mb-1">Car name</label>
                 <input
                         name="name"
                         required
@@ -442,9 +467,7 @@
             </div>
             <div class="grid grid-cols-3 gap-2">
                 <div>
-                    <label class="block text-[11px] text-retro-muted mb-1"
-                    >Year</label
-                    >
+                    <label class="block text-[11px] text-retro-muted mb-1">Year</label>
                     <input
                             name="year"
                             type="number"
@@ -481,9 +504,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-[11px] text-retro-muted mb-1"
-                    >Status</label
-                    >
+                    <label class="block text-[11px] text-retro-muted mb-1">Status</label>
                     <select
                             name="status"
                             class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
@@ -524,6 +545,7 @@
         <div class="flex justify-between items-center mb-3">
             <div class="font-semibold text-sm">Add Note</div>
             <button
+                    type="button"
                     data-close-modal="modal-add-note"
                     class="text-retro-muted hover:text-retro-text text-sm"
             >
@@ -544,9 +566,7 @@
                 />
             </div>
             <div>
-                <label class="block text-[11px] text-retro-muted mb-1"
-                >Title</label
-                >
+                <label class="block text-[11px] text-retro-muted mb-1">Title</label>
                 <input
                         name="title"
                         required
@@ -555,9 +575,7 @@
                 />
             </div>
             <div>
-                <label class="block text-[11px] text-retro-muted mb-1"
-                >Details</label
-                >
+                <label class="block text-[11px] text-retro-muted mb-1">Details</label>
                 <textarea
                         name="body"
                         rows="3"
@@ -587,18 +605,60 @@
     </div>
 </div>
 
+<!-- MODAL CAR DETAILS -->
+<div id="modal-car-details" class="modal-backdrop hidden">
+    <div
+            class="w-full max-w-lg mx-4 bg-retro-card border border-retro-cardBorder rounded-2xl p-5 text-xs shadow-2xl"
+    >
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center gap-2">
+                <div
+                        class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center"
+                >
+                    <i class="fa-solid fa-car-side text-retro-secondary text-sm"></i>
+                </div>
+                <div>
+                    <div id="details-title" class="font-semibold text-sm">
+                        Car details
+                    </div>
+                    <div
+                            id="details-subtitle"
+                            class="text-[10px] text-retro-muted"
+                    ></div>
+                </div>
+            </div>
+            <button
+                    type="button"
+                    data-close-modal="modal-car-details"
+                    class="text-retro-muted hover:text-retro-text text-sm"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="details-body" class="space-y-4 text-xs"></div>
+    </div>
+</div>
+
 <script>
-    // ----------------- NAVIGATION -----------------
+    // NAVIGATION
     const navButtons = document.querySelectorAll(".nav-btn");
     const pages = document.querySelectorAll(".tab-page");
 
     function showTab(id) {
       pages.forEach((p) => p.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+      const page = document.getElementById(id);
+      if (page) page.classList.add("active");
 
-      navButtons.forEach((b) => b.classList.remove("text-retro-secondary"));
+      navButtons.forEach((b) => {
+        b.classList.remove("text-retro-secondary");
+        b.classList.add("text-retro-muted");
+      });
       const btn = document.querySelector(`.nav-btn[data-target="${id}"]`);
-      if (btn) btn.classList.add("text-retro-secondary");
+      if (btn) {
+        btn.classList.remove("text-retro-muted");
+        btn.classList.add("text-retro-secondary");
+      }
 
       if (id === "tab-analytics") {
         setTimeout(() => {
@@ -612,7 +672,7 @@
       btn.addEventListener("click", () => showTab(btn.dataset.target));
     });
 
-    // ----------------- DATA -----------------
+    // DATA
     let cars = [
       {
         id: "mustang",
@@ -624,6 +684,7 @@
         notes: 12,
         updated: "2d ago",
         hero: "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200",
+        locked: false,
       },
       {
         id: "porsche",
@@ -635,6 +696,7 @@
         notes: 45,
         updated: "1w ago",
         hero: "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&w=1200",
+        locked: false,
       },
     ];
 
@@ -660,18 +722,313 @@
     ];
 
     const statusStyles = {
-      "In restoration": "bg-gradient-to-r from-amber-400 to-orange-500 text-black",
+      "In restoration":
+        "bg-gradient-to-r from-amber-400 to-orange-500 text-black",
       Complete: "bg-emerald-400 text-black",
       "Pending parts": "bg-sky-400 text-black",
     };
 
-    // ----------------- GARAGE RENDER -----------------
+    // MODALS HELPERS
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("hidden");
+    }
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    }
+
+    document.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", () => closeModal(btn.dataset.closeModal));
+    });
+
+    document.querySelectorAll(".modal-backdrop").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        if (e.target === b) b.classList.add("hidden");
+      });
+    });
+
+    // CAR DETAILS MODAL
+    function renderCarDetails(car, mode = "view") {
+      const titleEl = document.getElementById("details-title");
+      const subtitleEl = document.getElementById("details-subtitle");
+      const bodyEl = document.getElementById("details-body");
+      if (!car || !titleEl || !subtitleEl || !bodyEl) return;
+
+      titleEl.textContent = car.name;
+      subtitleEl.textContent = car.subtitle || "";
+
+      bodyEl.innerHTML = "";
+
+      if (mode === "settings") {
+        const formWrapper = document.createElement("div");
+        formWrapper.innerHTML = `
+          <div class="text-[11px] text-retro-muted mb-1.5">
+            Edit car details
+          </div>
+          <form id="form-edit-car" class="space-y-3">
+            <div>
+              <label class="block text-[11px] text-retro-muted mb-1">Name</label>
+              <input
+                name="name"
+                class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                value="${car.name}"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] text-retro-muted mb-1">Subtitle</label>
+              <input
+                name="subtitle"
+                class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                value="${car.subtitle || ""}"
+              />
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Year</label>
+                <input
+                  name="year"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.year || ""}"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Value, $</label>
+                <input
+                  name="value"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.value || 0}"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Notes</label>
+                <input
+                  name="notes"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.notes || 0}"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Status</label>
+                <select
+                  name="status"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                >
+                  <option value="In restoration" ${
+                    car.status === "In restoration" ? "selected" : ""
+                  }>In restoration</option>
+                  <option value="Complete" ${
+                    car.status === "Complete" ? "selected" : ""
+                  }>Complete</option>
+                  <option value="Pending parts" ${
+                    car.status === "Pending parts" ? "selected" : ""
+                  }>Pending parts</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Last updated</label>
+                <input
+                  name="updated"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.updated || ""}"
+                />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <div class="flex items-center gap-2 text-[11px]">
+                <label class="flex items-center gap-1 cursor-pointer">
+                  <input type="checkbox" name="locked" ${
+                    car.locked ? "checked" : ""
+                  } class="accent-retro-secondary" />
+                  <span>Lock car (read‑only)</span>
+                </label>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  id="btn-edit-cancel"
+                  class="px-3 py-2 rounded-xl bg-slate-800 text-retro-muted text-[11px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="px-3 py-2 rounded-xl bg-retro-secondary text-slate-950 text-[11px] font-semibold"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </form>
+        `;
+        bodyEl.appendChild(formWrapper);
+
+        const form = document.getElementById("form-edit-car");
+        const cancelBtn = document.getElementById("btn-edit-cancel");
+
+        cancelBtn.addEventListener("click", () => {
+          renderCarDetails(car, "view");
+        });
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          car.name = (fd.get("name") || "").toString().trim() || car.name;
+          car.subtitle = (fd.get("subtitle") || "").toString();
+          car.year = Number(fd.get("year")) || car.year;
+          car.value = Number(fd.get("value")) || car.value || 0;
+          car.notes = Number(fd.get("notes")) || car.notes || 0;
+          car.status = (fd.get("status") || car.status).toString();
+          car.updated = (fd.get("updated") || car.updated || "now").toString();
+          car.locked = fd.get("locked") === "on";
+
+          renderGarage();
+          renderCarDetails(car, "view");
+        });
+
+        return;
+      }
+
+      // VIEW MODE
+      const wrapper = document.createElement("div");
+      wrapper.className = "space-y-4";
+
+      const statusClass =
+        statusStyles[car.status] || "bg-slate-600 text-white";
+
+      wrapper.innerHTML = `
+        <div class="flex gap-3">
+          <div class="w-28 h-20 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0">
+            <img
+              src="${car.hero}"
+              alt="${car.name}"
+              class="w-full h-full object-cover"
+              draggable="false"
+            />
+          </div>
+          <div class="flex-1 text-[11px] space-y-1">
+            <div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass}">
+                <i class="fa-solid fa-wrench mr-1 text-[9px]"></i>${(
+                  car.status || ""
+                ).toUpperCase()}
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+              <div>
+                <div class="text-retro-muted">Year</div>
+                <div class="font-semibold">${car.year || "—"}</div>
+              </div>
+              <div>
+                <div class="text-retro-muted">Estimated value</div>
+                <div class="font-semibold">$${(car.value || 0).toLocaleString()}</div>
+              </div>
+              <div>
+                <div class="text-retro-muted">Notes</div>
+                <div class="font-semibold">${car.notes || 0}</div>
+              </div>
+              <div>
+                <div class="text-retro-muted">Last updated</div>
+                <div class="font-semibold">${car.updated || "—"}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-[11px] text-retro-muted">Recent notes</div>
+            <button
+              type="button"
+              id="btn-details-add-note"
+              class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-retro-secondary text-slate-950 text-[10px] font-semibold"
+            >
+              <i class="fa-solid fa-plus text-[9px]"></i>Add Note
+            </button>
+          </div>
+          <div id="details-notes" class="space-y-1 max-h-40 overflow-y-auto pr-1">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-retro-cardBorder/60">
+          <div class="flex items-center gap-2 text-[11px] text-retro-muted">
+            <i class="fa-solid fa-gear text-[10px]"></i>
+            <span>Use Settings to edit car or lock updates.</span>
+          </div>
+          <button
+            type="button"
+            id="btn-open-settings"
+            class="px-3 py-2 rounded-xl bg-slate-800 text-[11px]"
+          >
+            Open Settings
+          </button>
+        </div>
+      `;
+
+      bodyEl.appendChild(wrapper);
+
+      const notesContainer = document.getElementById("details-notes");
+      const recent = notes
+        .filter((n) => n.carId === car.id || n.carName === car.name)
+        .slice(-5)
+        .reverse();
+
+      if (!recent.length) {
+        const empty = document.createElement("div");
+        empty.className = "text-[11px] text-retro-muted";
+        empty.textContent = "No notes yet for this car.";
+        notesContainer.appendChild(empty);
+      } else {
+        recent.forEach((n) => {
+          const item = document.createElement("div");
+          item.className =
+            "text-[11px] bg-slate-900/70 rounded-lg px-2 py-1.5";
+          item.innerHTML = `
+            <div class="flex justify-between">
+              <span class="font-semibold">${n.title}</span>
+              <span class="text-[10px] text-retro-muted">${n.date}</span>
+            </div>
+            <div class="text-retro-muted line-clamp-2">${n.body || ""}</div>
+          `;
+          notesContainer.appendChild(item);
+        });
+      }
+
+      document
+        .getElementById("btn-open-settings")
+        .addEventListener("click", () => renderCarDetails(car, "settings"));
+
+      document
+        .getElementById("btn-details-add-note")
+        .addEventListener("click", () => {
+          openAddNoteModal({ carId: car.id, carName: car.name });
+        });
+    }
+
+    function openCarDetails(carId, mode = "view") {
+      const car = cars.find((c) => c.id === carId);
+      if (!car) return;
+      renderCarDetails(car, mode);
+      openModal("modal-car-details");
+    }
+
+    // GARAGE RENDER
     function renderGarage() {
       const list = document.getElementById("garage-list");
       const summary = document.getElementById("garage-summary");
+      if (!list || !summary) return;
+
       list.innerHTML = "";
 
-      const restorationCount = cars.filter((c) => c.status === "In restoration").length;
+      const restorationCount = cars.filter(
+        (c) => c.status === "In restoration"
+      ).length;
       summary.textContent = `${cars.length} cars · ${restorationCount} Restoration Projects`;
 
       cars.forEach((car) => {
@@ -679,27 +1036,35 @@
         card.className =
           "bg-slate-950/40 border border-retro-cardBorder rounded-3xl overflow-hidden shadow-xl";
 
-        const hero = car.hero ||
+        const hero =
+          car.hero ||
           "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200";
 
-        const statusClass =
-          statusStyles[car.status] || "bg-slate-600 text-white";
+        const statusClass = statusStyles[car.status] || "bg-slate-600 text-white";
+
+        const lockIcon = car.locked ? "fa-lock" : "fa-unlock";
+        const lockTitle = car.locked
+          ? "Car is locked: editing disabled"
+          : "Tap to lock this car (read‑only)";
 
         card.innerHTML = `
           <div class="relative">
-            <img src="${hero}" alt="${car.name}" class="w-full h-44 md:h-56 object-cover" />
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+            <img src="${hero}" alt="${car.name}" class="w-full h-44 md:h-56 object-cover pointer-events-none select-none" draggable="false" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none"></div>
+
             <div class="absolute top-3 right-3">
               <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-semibold ${statusClass}">
-                <i class="fa-solid fa-wrench mr-1 text-[9px]"></i>${car.status.toUpperCase()}
+                <i class="fa-solid fa-wrench mr-1 text-[9px]"></i>${(car.status || "").toUpperCase()}
               </span>
             </div>
+
             <div class="absolute left-4 bottom-4 right-4 flex flex-col md:flex-row md:items-end md:justify-between gap-2">
               <div>
                 <div class="text-xs text-slate-300 mb-0.5">${car.subtitle || ""}</div>
                 <div class="text-xl md:text-2xl font-bold">${car.name}</div>
               </div>
               <button
+                type="button"
                 class="inline-flex items-center justify-center self-start md:self-auto gap-1 px-3 py-1.5 rounded-full bg-retro-secondary text-slate-950 text-[11px] font-semibold shadow-lg hover:brightness-105 active:scale-[0.97] transition add-note-from-car"
                 data-car-id="${car.id}"
                 data-car-name="${car.name}"
@@ -728,14 +1093,28 @@
 
             <div class="flex items-center justify-between text-[11px] text-slate-400">
               <div class="flex items-center gap-2">
-                <button class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center">
+                <button
+                  type="button"
+                  class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center btn-car-settings"
+                  title="Car settings"
+                  data-car-id="${car.id}"
+                >
                   <i class="fa-solid fa-gear text-[10px]"></i>
                 </button>
-                <button class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center">
-                  <i class="fa-solid fa-lock text-[10px]"></i>
+                <button
+                  type="button"
+                  class="w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center btn-car-lock"
+                  title="${lockTitle}"
+                  data-car-id="${car.id}"
+                >
+                  <i class="fa-solid ${lockIcon} text-[10px]"></i>
                 </button>
               </div>
-              <button class="text-retro-secondary hover:underline text-[11px]">
+              <button
+                type="button"
+                class="text-retro-secondary hover:underline text-[11px] btn-view-details"
+                data-car-id="${car.id}"
+              >
                 View Details
               </button>
             </div>
@@ -745,8 +1124,15 @@
         list.appendChild(card);
       });
 
+      // Add Note on card
       list.querySelectorAll(".add-note-from-car").forEach((btn) => {
         btn.addEventListener("click", () => {
+          const carId = btn.dataset.carId;
+          const car = cars.find((c) => c.id === carId);
+          if (car && car.locked) {
+            alert("This car is locked. Unlock it in Settings to add notes.");
+            return;
+          }
           openAddNoteModal({
             carId: btn.dataset.carId,
             carName: btn.dataset.carName,
@@ -754,13 +1140,38 @@
         });
       });
 
+      // View Details
+      list.querySelectorAll(".btn-view-details").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          openCarDetails(btn.dataset.carId, "view");
+        });
+      });
+
+      // Settings (gear)
+      list.querySelectorAll(".btn-car-settings").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          openCarDetails(btn.dataset.carId, "settings");
+        });
+      });
+
+      // Lock / Unlock
+      list.querySelectorAll(".btn-car-lock").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const car = cars.find((c) => c.id === btn.dataset.carId);
+          if (!car) return;
+          car.locked = !car.locked;
+          renderGarage();
+        });
+      });
+
       updateAnalyticsSummary();
       renderTopCars();
     }
 
-    // ----------------- NOTES -----------------
+    // NOTES LIST
     function renderNotes(filter = "") {
       const list = document.getElementById("notes-list");
+      if (!list) return;
       list.innerHTML = "";
 
       const q = filter.trim().toLowerCase();
@@ -770,14 +1181,15 @@
         .reverse()
         .filter((n) => {
           if (!q) return true;
-          const haystack =
-            (n.title +
-              " " +
-              (n.body || "") +
-              " " +
-              (n.carName || "") +
-              " " +
-              (n.tags || []).join(" ")).toLowerCase();
+          const haystack = (
+            (n.title || "") +
+            " " +
+            (n.body || "") +
+            " " +
+            (n.carName || "") +
+            " " +
+            (n.tags || []).join(" ")
+          ).toLowerCase();
           return haystack.includes(q);
         })
         .forEach((note) => {
@@ -820,102 +1232,112 @@
       }
     }
 
-    document
-      .getElementById("notes-search")
-      .addEventListener("input", (e) => renderNotes(e.target.value));
+    const notesSearchInput = document.getElementById("notes-search");
+    if (notesSearchInput) {
+      notesSearchInput.addEventListener("input", (e) =>
+        renderNotes(e.target.value)
+      );
+    }
 
-    // header search jumps to Notes
-    document
-      .getElementById("header-search")
-      .addEventListener("click", () => {
+    // header search => Notes tab + focus
+    const headerSearchBtn = document.getElementById("header-search");
+    if (headerSearchBtn) {
+      headerSearchBtn.addEventListener("click", () => {
         showTab("tab-notes");
-        setTimeout(
-          () => document.getElementById("notes-search").focus(),
-          80
-        );
+        setTimeout(() => {
+          const search = document.getElementById("notes-search");
+          if (search) search.focus();
+        }, 80);
       });
-
-    // ----------------- MODALS -----------------
-    function openModal(id) {
-      document.getElementById(id).classList.remove("hidden");
-    }
-    function closeModal(id) {
-      document.getElementById(id).classList.add("hidden");
     }
 
-    document.querySelectorAll("[data-close-modal]").forEach((btn) => {
-      btn.addEventListener("click", () => closeModal(btn.dataset.closeModal));
-    });
-
-    // close by clicking backdrop
-    document.querySelectorAll(".modal-backdrop").forEach((b) => {
-      b.addEventListener("click", (e) => {
-        if (e.target === b) b.classList.add("hidden");
-      });
-    });
-
-    // ----------------- ADD CAR -----------------
-    document
-      .getElementById("btn-open-add-car")
-      .addEventListener("click", () => {
+    // ADD CAR
+    const openAddCarBtn = document.getElementById("btn-open-add-car");
+    if (openAddCarBtn) {
+      openAddCarBtn.addEventListener("click", () => {
         const f = document.getElementById("form-add-car");
-        f.reset();
+        if (f) f.reset();
         openModal("modal-add-car");
       });
+    }
 
-    document
-      .getElementById("form-add-car")
-      .addEventListener("submit", (e) => {
+    const addCarForm = document.getElementById("form-add-car");
+    if (addCarForm) {
+      addCarForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
 
         const car = {
           id: "car-" + Date.now(),
-          name: fd.get("name").trim() || "Untitled car",
-          subtitle: fd.get("subtitle") || "",
+          name: (fd.get("name") || "").toString().trim() || "Untitled car",
+          subtitle: (fd.get("subtitle") || "").toString(),
           year: Number(fd.get("year")) || new Date().getFullYear(),
           value: Number(fd.get("value")) || 0,
           notes: Number(fd.get("notes")) || 0,
-          status: fd.get("status") || "In restoration",
-          updated: fd.get("updated") || "now",
+          status: (fd.get("status") || "In restoration").toString(),
+          updated: (fd.get("updated") || "now").toString(),
           hero:
             "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200&rand=" +
             Math.random(),
+          locked: false,
         };
 
         cars.push(car);
         closeModal("modal-add-car");
         renderGarage();
       });
+    }
 
-    // ----------------- ADD NOTE -----------------
+    // ADD NOTE
     function openAddNoteModal(opts = {}) {
       const form = document.getElementById("form-add-note");
+      if (!form) return;
+
+      if (opts.carId) {
+        const car = cars.find((c) => c.id === opts.carId);
+        if (car && car.locked) {
+          alert("This car is locked. Unlock it in Settings to add notes.");
+          return;
+        }
+      }
+
       form.reset();
       form.carId.value = opts.carId || "";
       form.carName.value = opts.carName || "";
       openModal("modal-add-note");
     }
 
-    document
-      .getElementById("btn-open-add-note-global")
-      .addEventListener("click", () => openAddNoteModal());
+    const openAddNoteGlobalBtn = document.getElementById(
+      "btn-open-add-note-global"
+    );
+    if (openAddNoteGlobalBtn) {
+      openAddNoteGlobalBtn.addEventListener("click", () => openAddNoteModal());
+    }
 
-    document
-      .getElementById("form-add-note")
-      .addEventListener("submit", (e) => {
+    const addNoteForm = document.getElementById("form-add-note");
+    if (addNoteForm) {
+      addNoteForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
 
-        let carId = fd.get("carId");
-        let carName = (fd.get("carName") || "").trim();
+        let carId = (fd.get("carId") || "").toString();
+        let carName = (fd.get("carName") || "").toString().trim();
 
         if (!carName && carId) {
           const car = cars.find((c) => c.id === carId);
           if (car) carName = car.name;
         }
 
+        if (carId) {
+          const car = cars.find((c) => c.id === carId);
+          if (car && car.locked) {
+            alert("This car is locked. Unlock it in Settings to add notes.");
+            return;
+          }
+        }
+
         const tags = (fd.get("tags") || "")
+          .toString()
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean);
@@ -930,15 +1352,14 @@
           id: Date.now(),
           carId: carId || null,
           carName: carName || "General",
-          title: fd.get("title") || "Note",
-          body: fd.get("body") || "",
+          title: (fd.get("title") || "Note").toString(),
+          body: (fd.get("body") || "").toString(),
           tags,
           date: dateStr,
         };
 
         notes.push(note);
 
-        // bump car counters
         if (note.carId) {
           const car = cars.find((c) => c.id === note.carId);
           if (car) {
@@ -956,24 +1377,36 @@
         }
 
         closeModal("modal-add-note");
-        renderNotes(document.getElementById("notes-search").value);
+        renderNotes(
+          document.getElementById("notes-search")
+            ? document.getElementById("notes-search").value
+            : ""
+        );
         renderGarage();
       });
+    }
 
-    // ----------------- ANALYTICS -----------------
+    // ANALYTICS
     function updateAnalyticsSummary() {
       const totalValue = cars.reduce((sum, c) => sum + (c.value || 0), 0);
-      document.getElementById("total-value").textContent =
-        "$" + totalValue.toLocaleString();
+      const totalValueEl = document.getElementById("total-value");
+      if (totalValueEl) {
+        totalValueEl.textContent = "$" + totalValue.toLocaleString();
+      }
     }
 
     let chartsInited = false;
 
     function initCharts() {
-      if (chartsInited || !document.getElementById("analytics-pie")) return;
+      if (chartsInited) return;
+      if (
+        !document.getElementById("analytics-pie") ||
+        !document.getElementById("analytics-line")
+      )
+        return;
+
       chartsInited = true;
 
-      // Pie
       const pieData = [
         {
           type: "pie",
@@ -1001,7 +1434,6 @@
         responsive: true,
       });
 
-      // Line
       const months = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"];
       const mustang = [900, 1100, 1500, 600, 1300, 800];
       const porsche = [0, 500, 700, 300, 200, 150];
@@ -1054,7 +1486,7 @@
     }
 
     function resizeCharts() {
-      if (!chartsInited) return;
+      if (!chartsInited || !window.Plotly) return;
       try {
         Plotly.Plots.resize("analytics-pie");
         Plotly.Plots.resize("analytics-line");
@@ -1064,7 +1496,7 @@
     }
     window.addEventListener("resize", resizeCharts);
 
-    // ----------------- TOP CARS -----------------
+    // TOP CARS
     let topMode = "cost";
 
     function renderTopCars() {
@@ -1073,6 +1505,8 @@
       const mainEl = document.getElementById("top-highlight-main");
       const subEl = document.getElementById("top-highlight-sub");
       const badgeEl = document.getElementById("top-highlight-badge");
+
+      if (!list || !titleEl || !mainEl || !subEl || !badgeEl) return;
 
       list.innerHTML = "";
 
@@ -1158,11 +1592,9 @@
         btn.addEventListener("click", () => {
           document
             .querySelectorAll("#top-mode-switch button")
-            .forEach(
-              (b) =>
-                (b.className =
-                  "flex-1 py-1.5 rounded-lg text-retro-muted")
-            );
+            .forEach((b) => {
+              b.className = "flex-1 py-1.5 rounded-lg text-retro-muted";
+            });
           btn.className =
             "flex-1 py-1.5 rounded-lg bg-retro-secondary text-slate-950 font-semibold";
 
@@ -1171,12 +1603,57 @@
         });
       });
 
-    // ----------------- INIT -----------------
+    // AVATAR CHANGE (сохранение в localStorage)
+    const avatarBtn = document.getElementById("avatar-button");
+    const avatarImg = document.getElementById("avatar-img");
+    const avatarInput = document.getElementById("avatar-input");
+
+    const AVATAR_KEY = "retronotes_avatar_dataurl";
+
+    function loadAvatarFromStorage() {
+      try {
+        const saved = localStorage.getItem(AVATAR_KEY);
+        if (saved && avatarImg) {
+          avatarImg.src = saved;
+        }
+      } catch (e) {
+        console.warn("Cannot load avatar from storage", e);
+      }
+    }
+
+    function handleAvatarFile(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        avatarImg.src = dataUrl;
+        try {
+          localStorage.setItem(AVATAR_KEY, dataUrl);
+        } catch (err) {
+          console.warn("Cannot save avatar to storage", err);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (avatarBtn && avatarInput && avatarImg) {
+      avatarBtn.addEventListener("click", () => {
+        avatarInput.click();
+      });
+
+      avatarInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        handleAvatarFile(file);
+        avatarInput.value = "";
+      });
+    }
+
+    // INIT
     window.addEventListener("load", () => {
+      loadAvatarFromStorage();
       renderGarage();
       renderNotes();
       updateAnalyticsSummary();
-      initCharts();
       renderTopCars();
     });
 </script>
