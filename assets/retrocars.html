@@ -526,6 +526,65 @@
                 </div>
             </div>
 
+            <!-- БЛОК: ЗАГРУЗКА ФОТО АВТО (КАМЕРА + ГАЛЕРЕЯ) -->
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1">
+                    Car photo (optional)
+                </label>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Кнопка: камера (capture) -->
+
+                    <!-- Кнопка: галерея (без capture) -->
+                    <button
+                            type="button"
+                            id="btn-car-photo-gallery"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-800 border border-retro-cardBorder text-[11px] text-retro-muted hover:text-retro-text hover:border-retro-secondary transition"
+                    >
+                        <i class="fa-solid fa-image text-[10px]"></i>
+                        Gallery
+                    </button>
+
+                    <span
+                            id="car-photo-filename"
+                            class="text-[11px] text-retro-muted line-clamp-1"
+                    >
+                      No photo selected
+                    </span>
+                </div>
+
+                <!-- Скрытые инпуты: отдельный под камеру и под галерею -->
+                <input
+                        id="car-photo-input-camera"
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        class="hidden"
+                />
+                <input
+                        id="car-photo-input-gallery"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                />
+                <!-- сюда кладём dataURL выбранного фото -->
+                <input type="hidden" name="heroDataUrl" />
+
+                <div
+                        id="car-photo-preview-wrapper"
+                        class="mt-2 hidden"
+                >
+                    <div class="w-full h-32 rounded-xl overflow-hidden bg-slate-900 border border-retro-cardBorder">
+                        <img
+                                id="car-photo-preview"
+                                src=""
+                                alt="Car preview"
+                                class="w-full h-full object-cover"
+                                draggable="false"
+                        />
+                    </div>
+                </div>
+            </div>
+
             <button
                     type="submit"
                     class="w-full mt-2 flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-retro-secondary text-slate-950 font-semibold hover:brightness-105 active:scale-[0.97] transition"
@@ -1251,21 +1310,95 @@
       });
     }
 
-    // ADD CAR
+    // ------ ADD CAR + CAR PHOTO (CAMERA + GALLERY) ------
     const openAddCarBtn = document.getElementById("btn-open-add-car");
+    const carPhotoBtnCamera = document.getElementById("btn-car-photo-camera");
+    const carPhotoBtnGallery = document.getElementById("btn-car-photo-gallery");
+    const carPhotoInputCamera = document.getElementById("car-photo-input-camera");
+    const carPhotoInputGallery = document.getElementById("car-photo-input-gallery");
+    const carPhotoFilename = document.getElementById("car-photo-filename");
+    const carPhotoPreviewWrapper = document.getElementById("car-photo-preview-wrapper");
+    const carPhotoPreview = document.getElementById("car-photo-preview");
+    const addCarForm = document.getElementById("form-add-car");
+
     if (openAddCarBtn) {
       openAddCarBtn.addEventListener("click", () => {
         const f = document.getElementById("form-add-car");
         if (f) f.reset();
+
+        // сброс превью и текста файла
+        if (carPhotoFilename) {
+          carPhotoFilename.textContent = "No photo selected";
+        }
+        if (carPhotoPreviewWrapper) {
+          carPhotoPreviewWrapper.classList.add("hidden");
+        }
+        if (carPhotoPreview) {
+          carPhotoPreview.src = "";
+        }
+
         openModal("modal-add-car");
       });
     }
 
-    const addCarForm = document.getElementById("form-add-car");
+    function handleCarPhotoFile(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        if (carPhotoPreview) {
+          carPhotoPreview.src = dataUrl;
+        }
+        if (carPhotoPreviewWrapper) {
+          carPhotoPreviewWrapper.classList.remove("hidden");
+        }
+        if (carPhotoFilename) {
+          carPhotoFilename.textContent = file.name || "Custom photo selected";
+        }
+        // пишем в скрытое поле формы, чтобы использовать при сохранении
+        if (addCarForm && addCarForm.heroDataUrl) {
+          addCarForm.heroDataUrl.value = dataUrl;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Кнопка "Camera"
+    if (carPhotoBtnCamera && carPhotoInputCamera) {
+      carPhotoBtnCamera.addEventListener("click", () => {
+        carPhotoInputCamera.click();
+      });
+
+      carPhotoInputCamera.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        handleCarPhotoFile(file);
+        carPhotoInputCamera.value = "";
+      });
+    }
+
+    // Кнопка "Gallery"
+    if (carPhotoBtnGallery && carPhotoInputGallery) {
+      carPhotoBtnGallery.addEventListener("click", () => {
+        carPhotoInputGallery.click();
+      });
+
+      carPhotoInputGallery.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        handleCarPhotoFile(file);
+        carPhotoInputGallery.value = "";
+      });
+    }
+
     if (addCarForm) {
       addCarForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
+
+        const defaultHero =
+          "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200&rand=" +
+          Math.random();
+
+        const heroDataUrl = (fd.get("heroDataUrl") || "").toString();
 
         const car = {
           id: "car-" + Date.now(),
@@ -1276,9 +1409,9 @@
           notes: Number(fd.get("notes")) || 0,
           status: (fd.get("status") || "In restoration").toString(),
           updated: (fd.get("updated") || "now").toString(),
-          hero:
-            "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200&rand=" +
-            Math.random(),
+          // если пользователь выбрал собственное фото — используем его,
+          // иначе стандартный hero из pexels (как было раньше)
+          hero: heroDataUrl || defaultHero,
           locked: false,
         };
 
