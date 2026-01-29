@@ -167,7 +167,7 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
 
-                    <!-- AVATAR: клик по нему меняет фото -->
+                    <!-- AVATAR -->
                     <button
                             id="avatar-button"
                             type="button"
@@ -188,7 +188,6 @@
                         </div>
                     </button>
 
-                    <!-- Скрытый input для загрузки фото -->
                     <input
                             id="avatar-input"
                             type="file"
@@ -253,9 +252,11 @@
                     <div class="flex items-center gap-2 text-[11px] text-retro-muted mb-2">
                         <button
                                 type="button"
-                                class="px-2 py-1 rounded-full bg-retro-card border border-retro-cardBorder text-[10px]"
+                                id="btn-notes-filter-todos"
+                                class="px-2 py-1 rounded-full bg-retro-card border border-retro-cardBorder text-[10px] flex items-center gap-1"
                         >
-                            <i class="fa-solid fa-filter text-[9px] mr-1"></i>Filter
+                            <i class="fa-solid fa-filter text-[9px]"></i>
+                            <span>Show todos only</span>
                         </button>
                         <span class="flex-1 text-right">
               Sorted by <span class="text-retro-text">Newest first</span>
@@ -279,18 +280,16 @@
                             <div class="text-retro-muted mb-0.5">Garage value</div>
                             <div id="total-value" class="text-lg font-semibold">$0</div>
                             <div class="text-[10px] text-emerald-400 mt-0.5">
-                                <i class="fa-solid fa-arrow-trend-up mr-1"></i>sample +12% YTD
+                                <i class="fa-solid fa-arrow-trend-up mr-1"></i><span id="sample-growth">sample +12% YTD</span>
                             </div>
                         </div>
                         <div
                                 class="bg-retro-card border border-retro-cardBorder rounded-xl p-3 flex flex-col justify-between"
                         >
-                            <div class="text-retro-muted mb-0.5">Total spending</div>
-                            <div id="total-spent" class="text-lg font-semibold">
-                                $28,450
-                            </div>
+                            <div class="text-retro-muted mb-0.5">Total notes</div>
+                            <div id="total-notes" class="text-lg font-semibold">0</div>
                             <div class="text-[10px] text-retro-muted mt-0.5">
-                                Lifetime expenses (sample)
+                                Based on your logbook
                             </div>
                         </div>
                     </div>
@@ -321,6 +320,60 @@
                                 class="w-full"
                                 style="height: 220px"
                         ></div>
+                    </div>
+
+                    <!-- Radar: уникальная визуализация состояния гаража -->
+                    <div
+                            class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5"
+                    >
+                        <div class="flex justify-between items-center mb-3 text-xs">
+                            <div class="font-semibold">Garage health radar</div>
+                            <span class="text-retro-muted text-[11px]"
+                            >Based on your data</span
+                            >
+                        </div>
+                        <div
+                                id="analytics-radar"
+                                class="w-full"
+                                style="height: 220px"
+                        ></div>
+                    </div>
+
+                    <!-- Backup / Restore -->
+                    <div
+                            class="bg-retro-card border border-retro-cardBorder rounded-2xl p-4 mb-5 text-xs"
+                    >
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-semibold">Data backup</div>
+                            <span class="text-retro-muted text-[11px]">Export / Import</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                    type="button"
+                                    id="btn-export-data"
+                                    class="px-3 py-1.5 rounded-full bg-slate-800 text-[11px] flex items-center gap-1"
+                            >
+                                <i class="fa-solid fa-download text-[10px]"></i>
+                                <span>Export JSON</span>
+                            </button>
+                            <label
+                                    for="input-import-data"
+                                    class="px-3 py-1.5 rounded-full bg-slate-800 text-[11px] flex items-center gap-1 cursor-pointer"
+                            >
+                                <i class="fa-solid fa-upload text-[10px]"></i>
+                                <span>Import JSON</span>
+                            </label>
+                            <input
+                                    id="input-import-data"
+                                    type="file"
+                                    accept="application/json"
+                                    class="hidden"
+                            />
+                        </div>
+                        <p class="mt-2 text-[10px] text-retro-muted">
+                            Your garage and notes are stored securely on-device. Use backup to
+                            move data between your iPhone and iPad or keep a safety copy.
+                        </p>
                     </div>
                 </section>
 
@@ -502,6 +555,45 @@
                     />
                 </div>
             </div>
+
+            <!-- Maintenance fields -->
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1">Mileage</label>
+                    <input
+                            name="mileage"
+                            type="number"
+                            min="0"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="120000"
+                    />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Last service (km)</label
+                    >
+                    <input
+                            name="lastServiceMileage"
+                            type="number"
+                            min="0"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="115000"
+                    />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-retro-muted mb-1"
+                    >Service interval</label
+                    >
+                    <input
+                            name="serviceIntervalKm"
+                            type="number"
+                            min="0"
+                            class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                            placeholder="10000"
+                    />
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-[11px] text-retro-muted mb-1">Status</label>
@@ -526,15 +618,25 @@
                 </div>
             </div>
 
-            <!-- БЛОК: ЗАГРУЗКА ФОТО АВТО (КАМЕРА + ГАЛЕРЕЯ) -->
+            <!-- CAR PHOTO -->
             <div>
                 <label class="block text-[11px] text-retro-muted mb-1">
                     Car photo (optional)
                 </label>
                 <div class="flex items-center gap-3 flex-wrap">
-                    <!-- Кнопка: камера (capture) -->
+                    <!-- Camera (optional, можно включить id при необходимости) -->
+                    <!--
+                    <button
+                      type="button"
+                      id="btn-car-photo-camera"
+                      class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-800 border border-retro-cardBorder text-[11px] text-retro-muted hover:text-retro-text hover:border-retro-secondary transition"
+                    >
+                      <i class="fa-solid fa-camera text-[10px]"></i>
+                      Camera
+                    </button>
+                    -->
 
-                    <!-- Кнопка: галерея (без capture) -->
+                    <!-- Gallery -->
                     <button
                             type="button"
                             id="btn-car-photo-gallery"
@@ -548,11 +650,11 @@
                             id="car-photo-filename"
                             class="text-[11px] text-retro-muted line-clamp-1"
                     >
-                      No photo selected
-                    </span>
+            No photo selected
+          </span>
                 </div>
 
-                <!-- Скрытые инпуты: отдельный под камеру и под галерею -->
+                <!-- hidden inputs -->
                 <input
                         id="car-photo-input-camera"
                         type="file"
@@ -566,7 +668,6 @@
                         accept="image/*"
                         class="hidden"
                 />
-                <!-- сюда кладём dataURL выбранного фото -->
                 <input type="hidden" name="heroDataUrl" />
 
                 <div
@@ -652,6 +753,19 @@
                         placeholder="suspension, parts, todo"
                 />
             </div>
+            <div>
+                <label class="block text-[11px] text-retro-muted mb-1"
+                >Status</label
+                >
+                <select
+                        name="status"
+                        class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                >
+                    <option value="planned">Planned</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
 
             <button
                     type="submit"
@@ -731,7 +845,7 @@
       btn.addEventListener("click", () => showTab(btn.dataset.target));
     });
 
-    // DATA
+    // DATA (with maintenance fields, status, etc.)
     let cars = [
       {
         id: "mustang",
@@ -744,6 +858,10 @@
         updated: "2d ago",
         hero: "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200",
         locked: false,
+        mileage: 120000,
+        lastServiceMileage: 118000,
+        lastServiceDate: "2024-09-10",
+        serviceIntervalKm: 10000,
       },
       {
         id: "porsche",
@@ -756,6 +874,10 @@
         updated: "1w ago",
         hero: "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&w=1200",
         locked: false,
+        mileage: 175000,
+        lastServiceMileage: 170000,
+        lastServiceDate: "2024-08-20",
+        serviceIntervalKm: 15000,
       },
     ];
 
@@ -768,6 +890,7 @@
         body: "Upper & lower control arms, bushings, fresh alignment booked for Friday.",
         tags: ["suspension", "parts"],
         date: "Oct 14",
+        status: "done",
       },
       {
         id: 2,
@@ -777,6 +900,7 @@
         body: "Adjusted valves, replaced valve cover gaskets, filled with 20W-50.",
         tags: ["engine", "maintenance"],
         date: "Oct 11",
+        status: "in_progress",
       },
     ];
 
@@ -786,6 +910,35 @@
       Complete: "bg-emerald-400 text-black",
       "Pending parts": "bg-sky-400 text-black",
     };
+
+    // --- PERSISTENCE (localStorage) ---
+    const STORAGE_CARS_KEY = "retronotes_cars_v1";
+    const STORAGE_NOTES_KEY = "retronotes_notes_v1";
+    const AVATAR_KEY = "retronotes_avatar_dataurl";
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_CARS_KEY, JSON.stringify(cars));
+        localStorage.setItem(STORAGE_NOTES_KEY, JSON.stringify(notes));
+      } catch (e) {
+        console.warn("Cannot save state", e);
+      }
+    }
+
+    function loadState() {
+      try {
+        const savedCars = localStorage.getItem(STORAGE_CARS_KEY);
+        const savedNotes = localStorage.getItem(STORAGE_NOTES_KEY);
+        if (savedCars) {
+          cars = JSON.parse(savedCars);
+        }
+        if (savedNotes) {
+          notes = JSON.parse(savedNotes);
+        }
+      } catch (e) {
+        console.warn("Cannot load state", e);
+      }
+    }
 
     // MODALS HELPERS
     function openModal(id) {
@@ -806,6 +959,22 @@
         if (e.target === b) b.classList.add("hidden");
       });
     });
+
+    // Maintenance calculations
+    function getServiceStatus(car) {
+      const interval = car.serviceIntervalKm || 10000;
+      const lastService = car.lastServiceMileage || 0;
+      const current = car.mileage || 0;
+
+      const used = current - lastService;
+      const remaining = interval - used;
+
+      let status = "ok";
+      if (remaining <= 0) status = "overdue";
+      else if (remaining < interval * 0.2) status = "soon";
+
+      return { interval, lastService, current, used, remaining, status };
+    }
 
     // CAR DETAILS MODAL
     function renderCarDetails(car, mode = "view") {
@@ -868,6 +1037,35 @@
                   type="number"
                   class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
                   value="${car.notes || 0}"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Mileage</label>
+                <input
+                  name="mileage"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.mileage || 0}"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Last service (km)</label>
+                <input
+                  name="lastServiceMileage"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.lastServiceMileage || 0}"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-retro-muted mb-1">Service interval</label>
+                <input
+                  name="serviceIntervalKm"
+                  type="number"
+                  class="w-full bg-retro-cardSoft border border-retro-cardBorder rounded-xl px-3 py-2 text-xs"
+                  value="${car.serviceIntervalKm || 10000}"
                 />
               </div>
             </div>
@@ -946,7 +1144,13 @@
           car.status = (fd.get("status") || car.status).toString();
           car.updated = (fd.get("updated") || car.updated || "now").toString();
           car.locked = fd.get("locked") === "on";
+          car.mileage = Number(fd.get("mileage")) || car.mileage || 0;
+          car.lastServiceMileage =
+            Number(fd.get("lastServiceMileage")) || car.lastServiceMileage || 0;
+          car.serviceIntervalKm =
+            Number(fd.get("serviceIntervalKm")) || car.serviceIntervalKm || 10000;
 
+          saveState();
           renderGarage();
           renderCarDetails(car, "view");
         });
@@ -960,6 +1164,8 @@
 
       const statusClass =
         statusStyles[car.status] || "bg-slate-600 text-white";
+
+      const svc = getServiceStatus(car);
 
       wrapper.innerHTML = `
         <div class="flex gap-3">
@@ -996,6 +1202,28 @@
                 <div class="text-retro-muted">Last updated</div>
                 <div class="font-semibold">${car.updated || "—"}</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-[11px] text-retro-muted mb-1">Maintenance</div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="bg-slate-900/70 rounded-xl px-2.5 py-2">
+              <div class="text-retro-muted text-[10px]">Current mileage</div>
+              <div class="font-semibold">${(car.mileage || 0).toLocaleString()} km</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-xl px-2.5 py-2">
+              <div class="text-retro-muted text-[10px]">Last service</div>
+              <div class="font-semibold">${(car.lastServiceMileage || 0).toLocaleString()} km</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-xl px-2.5 py-2">
+              <div class="text-retro-muted text-[10px]">Interval</div>
+              <div class="font-semibold">${svc.interval.toLocaleString()} km</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-xl px-2.5 py-2">
+              <div class="text-retro-muted text-[10px]">Remaining</div>
+              <div class="font-semibold">${svc.remaining.toLocaleString()} km</div>
             </div>
           </div>
         </div>
@@ -1045,12 +1273,21 @@
         notesContainer.appendChild(empty);
       } else {
         recent.forEach((n) => {
+          const statusBadge =
+            n.status === "done"
+              ? '<span class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] ml-1">Done</span>'
+              : n.status === "in_progress"
+              ? '<span class="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[9px] ml-1">In progress</span>'
+              : '<span class="px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] ml-1">Planned</span>';
+
           const item = document.createElement("div");
           item.className =
             "text-[11px] bg-slate-900/70 rounded-lg px-2 py-1.5";
           item.innerHTML = `
             <div class="flex justify-between">
-              <span class="font-semibold">${n.title}</span>
+              <span class="font-semibold flex items-center">
+                ${n.title} ${statusBadge}
+              </span>
               <span class="text-[10px] text-retro-muted">${n.date}</span>
             </div>
             <div class="text-retro-muted line-clamp-2">${n.body || ""}</div>
@@ -1106,6 +1343,18 @@
           ? "Car is locked: editing disabled"
           : "Tap to lock this car (read‑only)";
 
+        const svc = getServiceStatus(car);
+        const serviceLabel =
+          svc.status === "overdue"
+            ? "Service overdue"
+            : svc.status === "soon"
+            ? "Service soon"
+            : "Next service";
+        const serviceValue =
+          svc.status === "overdue"
+            ? `+${Math.abs(svc.remaining).toLocaleString()} km`
+            : `${svc.remaining.toLocaleString()} km left`;
+
         card.innerHTML = `
           <div class="relative">
             <img src="${hero}" alt="${car.name}" class="w-full h-44 md:h-56 object-cover pointer-events-none select-none" draggable="false" />
@@ -1145,8 +1394,8 @@
                 <div class="text-sm font-semibold">$${(car.value || 0).toLocaleString()}</div>
               </div>
               <div class="bg-slate-900/70 rounded-2xl px-3 py-2 flex flex-col justify-center">
-                <div class="text-slate-400 text-[10px] uppercase tracking-wide">Updated</div>
-                <div class="text-sm font-semibold">${car.updated || "—"}</div>
+                <div class="text-slate-400 text-[10px] uppercase tracking-wide">${serviceLabel}</div>
+                <div class="text-sm font-semibold">${serviceValue}</div>
               </div>
             </div>
 
@@ -1219,6 +1468,7 @@
           const car = cars.find((c) => c.id === btn.dataset.carId);
           if (!car) return;
           car.locked = !car.locked;
+          saveState();
           renderGarage();
         });
       });
@@ -1228,17 +1478,23 @@
     }
 
     // NOTES LIST
+    let filterTodosOnly = false;
+
     function renderNotes(filter = "") {
       const list = document.getElementById("notes-list");
+      const totalNotesEl = document.getElementById("total-notes");
       if (!list) return;
       list.innerHTML = "";
 
       const q = filter.trim().toLowerCase();
 
-      notes
+      const filteredNotes = notes
         .slice()
         .reverse()
         .filter((n) => {
+          if (filterTodosOnly && n.status === "done") {
+            return false;
+          }
           if (!q) return true;
           const haystack = (
             (n.title || "") +
@@ -1250,37 +1506,57 @@
             (n.tags || []).join(" ")
           ).toLowerCase();
           return haystack.includes(q);
-        })
-        .forEach((note) => {
-          const el = document.createElement("div");
-          el.className =
-            "bg-retro-card border border-retro-cardBorder rounded-xl p-3";
-
-          const tagsHtml =
-            note.tags && note.tags.length
-              ? `<div class="flex flex-wrap gap-1 mt-1">${note.tags
-                  .map(
-                    (t) =>
-                      `<span class="px-1.5 py-0.5 rounded-full bg-slate-800 text-[9px] text-slate-300">${t}</span>`
-                  )
-                  .join("")}</div>`
-              : "";
-
-          el.innerHTML = `
-            <div class="flex justify-between mb-1">
-              <span class="text-[10px] uppercase text-blue-400">${
-                note.carName || "General"
-              }</span>
-              <span class="text-[10px] text-retro-muted">${note.date}</span>
-            </div>
-            <div class="font-semibold mb-0.5">${note.title}</div>
-            <div class="text-retro-muted text-[11px]">
-              ${note.body || ""}
-            </div>
-            ${tagsHtml}
-          `;
-          list.appendChild(el);
         });
+
+      filteredNotes.forEach((note) => {
+        const el = document.createElement("div");
+        el.className =
+          "bg-retro-card border border-retro-cardBorder rounded-xl p-3";
+
+        const tagsHtml =
+          note.tags && note.tags.length
+            ? `<div class="flex flex-wrap gap-1 mt-1">${note.tags
+                .map(
+                  (t) =>
+                    `<span class="px-1.5 py-0.5 rounded-full bg-slate-800 text-[9px] text-slate-300">${t}</span>`
+                )
+                .join("")}</div>`
+            : "";
+
+        const statusBadge =
+          note.status === "done"
+            ? '<span class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] ml-1">Done</span>'
+            : note.status === "in_progress"
+            ? '<span class="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[9px] ml-1">In progress</span>'
+            : '<span class="px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] ml-1">Planned</span>';
+
+        const isDone = note.status === "done";
+        const doneBtnLabel = isDone ? "Mark as todo" : "Mark done";
+
+        el.innerHTML = `
+          <div class="flex justify-between mb-1">
+            <span class="text-[10px] uppercase text-blue-400 flex items-center">
+              ${note.carName || "General"} ${statusBadge}
+            </span>
+            <span class="text-[10px] text-retro-muted">${note.date}</span>
+          </div>
+          <div class="font-semibold mb-0.5">${note.title}</div>
+          <div class="text-retro-muted text-[11px]">
+            ${note.body || ""}
+          </div>
+          ${tagsHtml}
+          <div class="mt-2 flex items-center justify-between">
+            <button
+              type="button"
+              class="text-[10px] px-2 py-1 rounded-full border border-retro-cardBorder bg-slate-900/60 hover:border-emerald-400 hover:text-emerald-300 transition btn-toggle-note-status"
+              data-note-id="${note.id}"
+            >
+              ${doneBtnLabel}
+            </button>
+          </div>
+        `;
+        list.appendChild(el);
+      });
 
       if (!list.children.length) {
         const empty = document.createElement("div");
@@ -1289,6 +1565,27 @@
           "No notes yet. Add your first log from Garage or Notes tab.";
         list.appendChild(empty);
       }
+
+      // Update total notes analytics
+      if (totalNotesEl) {
+        totalNotesEl.textContent = String(notes.length);
+      }
+
+      // attach handlers for toggle buttons
+      list.querySelectorAll(".btn-toggle-note-status").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.noteId);
+          const note = notes.find((n) => n.id === id);
+          if (!note) return;
+          note.status = note.status === "done" ? "planned" : "done";
+          saveState();
+          renderNotes(
+            document.getElementById("notes-search")
+              ? document.getElementById("notes-search").value
+              : ""
+          );
+        });
+      });
     }
 
     const notesSearchInput = document.getElementById("notes-search");
@@ -1296,6 +1593,25 @@
       notesSearchInput.addEventListener("input", (e) =>
         renderNotes(e.target.value)
       );
+    }
+
+    // Filter todos
+    const btnNotesFilterTodos = document.getElementById("btn-notes-filter-todos");
+    if (btnNotesFilterTodos) {
+      btnNotesFilterTodos.addEventListener("click", () => {
+        filterTodosOnly = !filterTodosOnly;
+        btnNotesFilterTodos.classList.toggle(
+          "border-retro-secondary",
+          filterTodosOnly
+        );
+        btnNotesFilterTodos.classList.toggle(
+          "text-retro-secondary",
+          filterTodosOnly
+        );
+        renderNotes(
+          notesSearchInput ? notesSearchInput.value : ""
+        );
+      });
     }
 
     // header search => Notes tab + focus
@@ -1310,7 +1626,7 @@
       });
     }
 
-    // ------ ADD CAR + CAR PHOTO (CAMERA + GALLERY) ------
+    // ------ ADD CAR + CAR PHOTO ------
     const openAddCarBtn = document.getElementById("btn-open-add-car");
     const carPhotoBtnCamera = document.getElementById("btn-car-photo-camera");
     const carPhotoBtnGallery = document.getElementById("btn-car-photo-gallery");
@@ -1326,7 +1642,6 @@
         const f = document.getElementById("form-add-car");
         if (f) f.reset();
 
-        // сброс превью и текста файла
         if (carPhotoFilename) {
           carPhotoFilename.textContent = "No photo selected";
         }
@@ -1355,7 +1670,6 @@
         if (carPhotoFilename) {
           carPhotoFilename.textContent = file.name || "Custom photo selected";
         }
-        // пишем в скрытое поле формы, чтобы использовать при сохранении
         if (addCarForm && addCarForm.heroDataUrl) {
           addCarForm.heroDataUrl.value = dataUrl;
         }
@@ -1363,7 +1677,7 @@
       reader.readAsDataURL(file);
     }
 
-    // Кнопка "Camera"
+    // Camera (if needed; currently button commented out in HTML)
     if (carPhotoBtnCamera && carPhotoInputCamera) {
       carPhotoBtnCamera.addEventListener("click", () => {
         carPhotoInputCamera.click();
@@ -1376,7 +1690,7 @@
       });
     }
 
-    // Кнопка "Gallery"
+    // Gallery
     if (carPhotoBtnGallery && carPhotoInputGallery) {
       carPhotoBtnGallery.addEventListener("click", () => {
         carPhotoInputGallery.click();
@@ -1400,6 +1714,12 @@
 
         const heroDataUrl = (fd.get("heroDataUrl") || "").toString();
 
+        const mileage = Number(fd.get("mileage")) || 0;
+        const lastServiceMileage =
+          Number(fd.get("lastServiceMileage")) || mileage || 0;
+        const intervalKm =
+          Number(fd.get("serviceIntervalKm")) || 10000;
+
         const car = {
           id: "car-" + Date.now(),
           name: (fd.get("name") || "").toString().trim() || "Untitled car",
@@ -1409,13 +1729,16 @@
           notes: Number(fd.get("notes")) || 0,
           status: (fd.get("status") || "In restoration").toString(),
           updated: (fd.get("updated") || "now").toString(),
-          // если пользователь выбрал собственное фото — используем его,
-          // иначе стандартный hero из pexels (как было раньше)
           hero: heroDataUrl || defaultHero,
           locked: false,
+          mileage,
+          lastServiceMileage,
+          lastServiceDate: new Date().toISOString().slice(0, 10),
+          serviceIntervalKm: intervalKm,
         };
 
         cars.push(car);
+        saveState();
         closeModal("modal-add-car");
         renderGarage();
       });
@@ -1475,6 +1798,8 @@
           .map((t) => t.trim())
           .filter(Boolean);
 
+        const status = (fd.get("status") || "planned").toString();
+
         const now = new Date();
         const dateStr = now.toLocaleDateString(undefined, {
           month: "short",
@@ -1489,6 +1814,7 @@
           body: (fd.get("body") || "").toString(),
           tags,
           date: dateStr,
+          status,
         };
 
         notes.push(note);
@@ -1509,6 +1835,7 @@
           }
         }
 
+        saveState();
         closeModal("modal-add-note");
         renderNotes(
           document.getElementById("notes-search")
@@ -1526,6 +1853,11 @@
       if (totalValueEl) {
         totalValueEl.textContent = "$" + totalValue.toLocaleString();
       }
+
+      const totalNotesEl = document.getElementById("total-notes");
+      if (totalNotesEl) {
+        totalNotesEl.textContent = String(notes.length);
+      }
     }
 
     let chartsInited = false;
@@ -1534,7 +1866,8 @@
       if (chartsInited) return;
       if (
         !document.getElementById("analytics-pie") ||
-        !document.getElementById("analytics-line")
+        !document.getElementById("analytics-line") ||
+        !document.getElementById("analytics-radar")
       )
         return;
 
@@ -1616,6 +1949,89 @@
         displayModeBar: false,
         responsive: true,
       });
+
+      renderRadarChart();
+    }
+
+    function renderRadarChart() {
+      const radarEl = document.getElementById("analytics-radar");
+      if (!radarEl || !window.Plotly) return;
+
+      if (!cars.length) {
+        radarEl.innerHTML =
+          '<div class="text-[11px] text-retro-muted text-center pt-10">Add cars in Garage to see your garage health profile.</div>';
+        return;
+      }
+
+      // Axes: Restoration, Documentation, Maintenance, Notes, Investment
+      const axes = [
+        "Restoration",
+        "Documentation",
+        "Maintenance",
+        "Notes density",
+        "Investment",
+      ];
+
+      const traces = cars.map((car) => {
+        const svc = getServiceStatus(car);
+        const restorationScore =
+          car.status === "Complete"
+            ? 100
+            : car.status === "In restoration"
+            ? 50
+            : 70;
+        const docsScore = Math.min((car.notes || 0) * 3, 100);
+        const maintenanceScore =
+          svc.status === "ok"
+            ? 100
+            : svc.status === "soon"
+            ? 70
+            : 40;
+        const notesScore = Math.min((car.notes || 0) * 2, 100);
+        const investmentScore = Math.min((car.value || 0) / 300, 100);
+
+        const values = [
+          restorationScore,
+          docsScore,
+          maintenanceScore,
+          notesScore,
+          investmentScore,
+          restorationScore, // close loop
+        ];
+
+        return {
+          type: "scatterpolar",
+          r: values,
+          theta: [...axes, axes[0]],
+          fill: "toself",
+          name: car.name,
+        };
+      });
+
+      const layout = {
+        margin: { t: 10, r: 10, b: 10, l: 10 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        polar: {
+          bgcolor: "rgba(15,23,42,0.8)",
+          radialaxis: {
+            visible: false,
+            range: [0, 100],
+          },
+          angularaxis: {
+            tickfont: { color: "#94a3b8", size: 9 },
+          },
+        },
+        legend: {
+          font: { color: "#e2e8f0", size: 9 },
+        },
+        height: 220,
+      };
+
+      Plotly.newPlot(radarEl, traces, layout, {
+        displayModeBar: false,
+        responsive: true,
+      });
     }
 
     function resizeCharts() {
@@ -1623,6 +2039,7 @@
       try {
         Plotly.Plots.resize("analytics-pie");
         Plotly.Plots.resize("analytics-line");
+        Plotly.Plots.resize("analytics-radar");
       } catch (e) {
         console.warn("resize error", e);
       }
@@ -1653,7 +2070,12 @@
       }
 
       const nowYear = new Date().getFullYear();
-      const spendingMap = { mustang: 14500, porsche: 8200 }; // sample
+
+      // spendingMap основан на значении value как прокси для потраченных денег
+      const spendingMap = {};
+      cars.forEach((c) => {
+        spendingMap[c.id] = Math.round((c.value || 0) * 0.7);
+      });
 
       let sorted = [...cars];
 
@@ -1681,7 +2103,7 @@
         titleEl.textContent = best.name;
         mainEl.textContent =
           "$" + (spendingMap[best.id] || 0).toLocaleString();
-        subEl.textContent = "Sample lifetime spending";
+        subEl.textContent = "Estimated lifetime spending";
       } else {
         const age = nowYear - (best.year || nowYear);
         badgeEl.innerHTML =
@@ -1736,12 +2158,10 @@
         });
       });
 
-    // AVATAR CHANGE (сохранение в localStorage)
+    // AVATAR CHANGE (localStorage)
     const avatarBtn = document.getElementById("avatar-button");
     const avatarImg = document.getElementById("avatar-img");
     const avatarInput = document.getElementById("avatar-input");
-
-    const AVATAR_KEY = "retronotes_avatar_dataurl";
 
     function loadAvatarFromStorage() {
       try {
@@ -1781,8 +2201,65 @@
       });
     }
 
+    // Export / Import JSON
+    function exportData() {
+      const data = { cars, notes, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "retronotes_garage_backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importDataFromFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed || !Array.isArray(parsed.cars) || !Array.isArray(parsed.notes)) {
+            alert("Invalid backup file");
+            return;
+          }
+          cars = parsed.cars;
+          notes = parsed.notes;
+          saveState();
+          renderGarage();
+          renderNotes(
+            document.getElementById("notes-search")
+              ? document.getElementById("notes-search").value
+              : ""
+          );
+          updateAnalyticsSummary();
+          renderTopCars();
+          if (chartsInited) renderRadarChart();
+        } catch (err) {
+          alert("Error importing backup");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    const btnExportData = document.getElementById("btn-export-data");
+    const inputImportData = document.getElementById("input-import-data");
+
+    if (btnExportData) {
+      btnExportData.addEventListener("click", exportData);
+    }
+    if (inputImportData) {
+      inputImportData.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importDataFromFile(file);
+        inputImportData.value = "";
+      });
+    }
+
     // INIT
     window.addEventListener("load", () => {
+      loadState();
       loadAvatarFromStorage();
       renderGarage();
       renderNotes();

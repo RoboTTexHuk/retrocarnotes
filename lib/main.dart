@@ -12,10 +12,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
-    show MethodChannel, SystemChannel, SystemChrome, SystemUiOverlayStyle, MethodCall;
+    show MethodChannel, SystemChrome, SystemUiOverlayStyle, MethodCall;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:retrocarnotes/pufikiretro.dart';
 import 'package:retrocarnotes/retrocars.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +25,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz_zone;
 
 // ============================================================================
-// Константы (не трогаем строки)
+// Константы
 // ============================================================================
 
 const String goldLuxuryLoadedOnceKey = 'loaded_once';
@@ -33,180 +34,11 @@ const String goldLuxuryCachedFcmKey = 'cached_fcm';
 const String goldLuxuryCachedDeepKey = 'cached_deep_push_uri';
 
 // ============================================================================
-// Неоновый лоадер RETRO / cars
+// Заглушки вместо pufikiretro.dart и retrocars.dart
 // ============================================================================
 
-class RetroCarNeonLoader extends StatefulWidget {
-  const RetroCarNeonLoader({Key? key}) : super(key: key);
 
-  @override
-  State<RetroCarNeonLoader> createState() => _RetroCarNeonLoaderState();
-}
 
-class _RetroCarNeonLoaderState extends State<RetroCarNeonLoader>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _retroCarGlowController;
-  late Animation<double> _retroCarGlowAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _retroCarGlowController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
-    _retroCarGlowAnimation =
-        Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(
-          parent: _retroCarGlowController,
-          curve: Curves.easeInOut,
-        ));
-  }
-
-  @override
-  void dispose() {
-    _retroCarGlowController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const Color retroCarBackground = Color(0xFF05071B);
-    const Color retroCarOuterNeon = Color(0xFF49F2FF);
-    const Color retroCarInnerNeon = Color(0xFFFFA54B);
-    const Color retroCarTextCars = Color(0xFF49F2FF);
-
-    return Container(
-      color: retroCarBackground,
-      child: Center(
-        child: AnimatedBuilder(
-          animation: _retroCarGlowAnimation,
-          builder: (BuildContext context, Widget? child) {
-            final double retroCarGlow = _retroCarGlowAnimation.value;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(40),
-                    color: Colors.transparent,
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color:
-                        retroCarOuterNeon.withOpacity(0.15 * retroCarGlow),
-                        blurRadius: 40 * retroCarGlow,
-                        spreadRadius: 4 * retroCarGlow,
-                      ),
-                    ],
-                    border: Border.all(
-                      color: retroCarOuterNeon.withOpacity(0.8),
-                      width: 3,
-                    ),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: retroCarInnerNeon
-                                  .withOpacity(0.35 * retroCarGlow),
-                              blurRadius: 30 * retroCarGlow,
-                              spreadRadius: 2 * retroCarGlow,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text(
-                            'RETRO',
-                            style: TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 32,
-                              letterSpacing: 4,
-                              fontWeight: FontWeight.w800,
-                              color: retroCarInnerNeon.withOpacity(
-                                  0.9 + 0.1 * math.sin(retroCarGlow * math.pi)),
-                              shadows: <Shadow>[
-                                Shadow(
-                                  color: retroCarInnerNeon
-                                      .withOpacity(0.7 * retroCarGlow),
-                                  blurRadius: 16 * retroCarGlow,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'cars',
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 22,
-                    fontStyle: FontStyle.italic,
-                    letterSpacing: 3,
-                    color: retroCarTextCars.withOpacity(
-                      0.8 + 0.2 * math.sin(retroCarGlow * 2 * math.pi),
-                    ),
-                    shadows: <Shadow>[
-                      Shadow(
-                        color: retroCarTextCars.withOpacity(0.7 * retroCarGlow),
-                        blurRadius: 18 * retroCarGlow,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Container(
-                  width: 140,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.white.withOpacity(0.08),
-                  ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: FractionallySizedBox(
-                      widthFactor: retroCarGlow,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              retroCarOuterNeon.withOpacity(0.8),
-                              retroCarInnerNeon.withOpacity(0.9),
-                            ],
-                          ),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: retroCarOuterNeon
-                                  .withOpacity(0.4 * retroCarGlow),
-                              blurRadius: 12 * retroCarGlow,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
 
 // ============================================================================
 // Лёгкие сервисы
@@ -356,6 +188,183 @@ class RetroCarAnalyticsSpyService {
 }
 
 // ============================================================================
+// Неоновый лоадер
+// ============================================================================
+
+class RetroCarNeonLoader extends StatefulWidget {
+  const RetroCarNeonLoader({Key? key}) : super(key: key);
+
+  @override
+  State<RetroCarNeonLoader> createState() => _RetroCarNeonLoaderState();
+}
+
+class _RetroCarNeonLoaderState extends State<RetroCarNeonLoader>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _retroCarGlowController;
+  late Animation<double> _retroCarGlowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _retroCarGlowController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _retroCarGlowAnimation =
+        Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(
+          parent: _retroCarGlowController,
+          curve: Curves.easeInOut,
+        ));
+  }
+
+  @override
+  void dispose() {
+    _retroCarGlowController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const Color retroCarBackground = Color(0xFF05071B);
+    const Color retroCarOuterNeon = Color(0xFF49F2FF);
+    const Color retroCarInnerNeon = Color(0xFFFFA54B);
+    const Color retroCarTextCars = Color(0xFF49F2FF);
+
+    return Container(
+      color: retroCarBackground,
+      child: Center(
+        child: AnimatedBuilder(
+          animation: _retroCarGlowAnimation,
+          builder: (BuildContext context, Widget? child) {
+            final double retroCarGlow = _retroCarGlowAnimation.value;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    color: Colors.transparent,
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color:
+                        retroCarOuterNeon.withOpacity(0.15 * retroCarGlow),
+                        blurRadius: 40 * retroCarGlow,
+                        spreadRadius: 4 * retroCarGlow,
+                      ),
+                    ],
+                    border: Border.all(
+                      color: retroCarOuterNeon.withOpacity(0.8),
+                      width: 3,
+                    ),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                              color: retroCarInnerNeon
+                                  .withOpacity(0.35 * retroCarGlow),
+                              blurRadius: 30 * retroCarGlow,
+                              spreadRadius: 2 * retroCarGlow,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'RETRO',
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 32,
+                              letterSpacing: 4,
+                              fontWeight: FontWeight.w800,
+                              color: retroCarInnerNeon.withOpacity(
+                                  0.9 + 0.1 * math.sin(retroCarGlow * math.pi)),
+                              shadows: <Shadow>[
+                                Shadow(
+                                  color: retroCarInnerNeon
+                                      .withOpacity(0.7 * retroCarGlow),
+                                  blurRadius: 16 * retroCarGlow,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'cars',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 22,
+                    fontStyle: FontStyle.italic,
+                    letterSpacing: 3,
+                    color: retroCarTextCars.withOpacity(
+                      0.8 + 0.2 * math.sin(retroCarGlow * 2 * math.pi),
+                    ),
+                    shadows: <Shadow>[
+                      Shadow(
+                        color:
+                        retroCarTextCars.withOpacity(0.7 * retroCarGlow),
+                        blurRadius: 18 * retroCarGlow,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Container(
+                  width: 140,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: retroCarGlow,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          gradient: LinearGradient(
+                            colors: <Color>[
+                              retroCarOuterNeon.withOpacity(0.8),
+                              retroCarInnerNeon.withOpacity(0.9),
+                            ],
+                          ),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                              color: retroCarOuterNeon
+                                  .withOpacity(0.4 * retroCarGlow),
+                              blurRadius: 12 * retroCarGlow,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
 // FCM фон
 // ============================================================================
 
@@ -384,7 +393,122 @@ Future<void> retroCarFcmBackgroundHandler(RemoteMessage message) async {
 }
 
 // ============================================================================
-// FCM Bridge
+// BLoC (на ChangeNotifier) + состояние
+// ============================================================================
+
+class RetroCarAppState {
+  final String? fcmToken;
+  final RetroCarDeviceProfile deviceProfile;
+  final bool isDeviceReady;
+  final bool isAppsFlyerReady;
+
+  const RetroCarAppState({
+    required this.fcmToken,
+    required this.deviceProfile,
+    required this.isDeviceReady,
+    required this.isAppsFlyerReady,
+  });
+
+  RetroCarAppState copyWith({
+    String? fcmToken,
+    RetroCarDeviceProfile? deviceProfile,
+    bool? isDeviceReady,
+    bool? isAppsFlyerReady,
+  }) {
+    return RetroCarAppState(
+      fcmToken: fcmToken ?? this.fcmToken,
+      deviceProfile: deviceProfile ?? this.deviceProfile,
+      isDeviceReady: isDeviceReady ?? this.isDeviceReady,
+      isAppsFlyerReady: isAppsFlyerReady ?? this.isAppsFlyerReady,
+    );
+  }
+}
+
+class RetroCarAppBloc extends ChangeNotifier {
+  final RetroCarLoggerService _logger = RetroCarLoggerService();
+  final RetroCarAnalyticsSpyService analyticsSpyService;
+  final RetroCarDeviceProfile deviceProfile;
+
+  RetroCarAppState _state;
+
+  RetroCarAppState get state => _state;
+
+  RetroCarAppBloc({
+    required this.analyticsSpyService,
+    required this.deviceProfile,
+  }) : _state = RetroCarAppState(
+    fcmToken: null,
+    deviceProfile: deviceProfile,
+    isDeviceReady: false,
+    isAppsFlyerReady: false,
+  );
+
+  Future<void> initialize() async {
+    await _initDeviceProfile();
+    await _initAppsFlyer();
+    await _initFcmToken();
+  }
+
+  Future<void> _initDeviceProfile() async {
+    try {
+      await deviceProfile.retroCarInitialize();
+
+      final FirebaseMessaging messaging = FirebaseMessaging.instance;
+      final NotificationSettings settings =
+      await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      deviceProfile.retroCarPushEnabled =
+          settings.authorizationStatus == AuthorizationStatus.authorized ||
+              settings.authorizationStatus ==
+                  AuthorizationStatus.provisional;
+
+      _state = _state.copyWith(
+        deviceProfile: deviceProfile,
+        isDeviceReady: true,
+      );
+      notifyListeners();
+    } catch (e, st) {
+      _logger.retroCarLogError('BLoC: initDeviceProfile error: $e\n$st');
+    }
+  }
+
+  Future<void> _initAppsFlyer() async {
+    try {
+      analyticsSpyService.retroCarStartTracking(
+        onUpdate: () {
+          _state = _state.copyWith(isAppsFlyerReady: true);
+          notifyListeners();
+        },
+      );
+    } catch (e, st) {
+      _logger.retroCarLogError('BLoC: initAppsFlyer error: $e\n$st');
+    }
+  }
+
+  Future<void> _initFcmToken() async {
+    try {
+      final String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null && token.isNotEmpty) {
+        _setFcmToken(token);
+      }
+      FirebaseMessaging.instance.onTokenRefresh.listen(_setFcmToken);
+    } catch (e, st) {
+      _logger.retroCarLogError('BLoC: initFcmToken error: $e\n$st');
+    }
+  }
+
+  void _setFcmToken(String newToken) {
+    _state = _state.copyWith(fcmToken: newToken);
+    notifyListeners();
+  }
+}
+
+// ============================================================================
+// FCM Bridge (нативный канал, как в твоём коде)
 // ============================================================================
 
 class RetroCarFcmBridge {
@@ -415,7 +539,8 @@ class RetroCarFcmBridge {
       await SharedPreferences.getInstance();
       final String? retroCarCachedToken =
       retroCarPrefs.getString(goldLuxuryCachedFcmKey);
-      if (retroCarCachedToken != null && retroCarCachedToken.isNotEmpty) {
+      if (retroCarCachedToken != null &&
+          retroCarCachedToken.isNotEmpty) {
         retroCarSetToken(retroCarCachedToken, notify: false);
       }
     } catch (_) {}
@@ -496,13 +621,17 @@ class _RetroCarHallState extends State<RetroCarHall> {
       statusBarBrightness: Brightness.dark,
     ));
 
+    final bloc = context.read<RetroCarAppBloc>();
+    bloc.initialize();
+
     retroCarFcmBridge.retroCarWaitForToken((String retroCarToken) {
       retroCarGoToGarage(retroCarToken);
     });
 
     retroCarFallbackTimer = Timer(
       const Duration(seconds: 8),
-          () => retroCarGoToGarage(''),
+          () => retroCarGoToGarage(
+          context.read<RetroCarAppBloc>().state.fcmToken ?? ''),
     );
   }
 
@@ -593,7 +722,8 @@ class RetroCarCourierService {
   });
 
   Future<void> retroCarPutDeviceToLocalStorage(String? token) async {
-    final InAppWebViewController? controller = retroCarGetWebViewController();
+    final InAppWebViewController? controller =
+    retroCarGetWebViewController();
     if (controller == null) return;
 
     final Map<String, dynamic> retroCarMap =
@@ -608,7 +738,8 @@ class RetroCarCourierService {
       String? token, {
         String? deepLink,
       }) async {
-    final InAppWebViewController? controller = retroCarGetWebViewController();
+    final InAppWebViewController? controller =
+    retroCarGetWebViewController();
     if (controller == null) return;
 
     final Map<String, dynamic> retroCarPayload =
@@ -628,7 +759,7 @@ class RetroCarCourierService {
 }
 
 // ============================================================================
-// Переходы/статистика
+// Статистика / переходы
 // ============================================================================
 
 Future<String> retroCarResolveFinalUrl(
@@ -926,7 +1057,8 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute<Widget>(
-              builder: (BuildContext context) => RetroCarTableView(retroCarUri),
+              builder: (BuildContext context) =>
+                  RetroCarTableView(retroCarUri),
             ),
                 (Route<dynamic> route) => false,
           );
@@ -939,7 +1071,8 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
     try {
       await retroCarDeviceProfile.retroCarInitialize();
 
-      final FirebaseMessaging retroCarMessaging = FirebaseMessaging.instance;
+      final FirebaseMessaging retroCarMessaging =
+          FirebaseMessaging.instance;
       final NotificationSettings retroCarSettings =
       await retroCarMessaging.requestPermission(
         alert: true,
@@ -992,11 +1125,19 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
   }
 
   Future<void> retroCarPushDeviceInfo() async {
+    final bloc = context.read<RetroCarAppBloc>();
+    final blocToken = bloc.state.fcmToken;
+
+    final String? token = (widget.retroCarSignal != null &&
+        widget.retroCarSignal!.isNotEmpty)
+        ? widget.retroCarSignal
+        : blocToken;
+
     RetroCarLoggerService()
-        .retroCarLogInfo('TOKEN ship ${widget.retroCarSignal}');
+        .retroCarLogInfo('TOKEN ship $token');
     try {
       await retroCarCourier?.retroCarPutDeviceToLocalStorage(
-        widget.retroCarSignal,
+        token,
       );
     } catch (error) {
       RetroCarLoggerService()
@@ -1005,9 +1146,16 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
   }
 
   Future<void> retroCarPushAppsFlyerData() async {
+    final bloc = context.read<RetroCarAppBloc>();
+    final blocToken = bloc.state.fcmToken;
+    final String? token = (widget.retroCarSignal != null &&
+        widget.retroCarSignal!.isNotEmpty)
+        ? widget.retroCarSignal
+        : blocToken;
+
     try {
       await retroCarCourier?.retroCarSendRawToPage(
-        widget.retroCarSignal,
+        token,
         deepLink: retroCarDeepLinkFromPush,
       );
     } catch (error) {
@@ -1150,8 +1298,7 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
         );
       }
 
-      final String retroCarPath =
-      uri.path.isNotEmpty ? uri.path : '';
+      final String retroCarPath = uri.path.isNotEmpty ? uri.path : '';
 
       return Uri.https(
         't.me',
@@ -1269,8 +1416,7 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
     }
 
     if (retroCarScheme == 'bnl') {
-      final String retroCarNewPath =
-      uri.path.isNotEmpty ? uri.path : '';
+      final String retroCarNewPath = uri.path.isNotEmpty ? uri.path : '';
       return Uri.https(
         'bnl.com',
         '/$retroCarNewPath',
@@ -1416,7 +1562,7 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
                             final dynamic retroCarRaw =
                             (args[0] as Map)['savedata'];
 
-                            print("saveDATA "+retroCarRaw.toString());
+                            debugPrint("saveDATA ${retroCarRaw.toString()}");
                             _handleServerSavedata(
                                 retroCarRaw?.toString() ?? '');
                           } else if (args[0] is String) {
@@ -1481,8 +1627,8 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
                       timeStart: retroCarNow,
                       timeFinish: retroCarNow,
                       url: uri?.toString() ?? '',
-                      appSid:
-                      retroCarAnalyticsSpyService.retroCarAppsFlyerUid,
+                      appSid: retroCarAnalyticsSpyService
+                          .retroCarAppsFlyerUid,
                       firstPageLoadTs: retroCarFirstPageTimestamp,
                     );
                   },
@@ -1503,8 +1649,8 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
                       timeStart: retroCarNow,
                       timeFinish: retroCarNow,
                       url: request.url?.toString() ?? '',
-                      appSid:
-                      retroCarAnalyticsSpyService.retroCarAppsFlyerUid,
+                      appSid: retroCarAnalyticsSpyService
+                          .retroCarAppsFlyerUid,
                       firstPageLoadTs: retroCarFirstPageTimestamp,
                     );
                   },
@@ -1563,11 +1709,11 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
 
                     final String retroCarHost =
                     retroCarUri.host.toLowerCase();
-                    final bool retroCarIsSocial = retroCarHost
-                        .endsWith('facebook.com') ||
-                        retroCarHost.endsWith('instagram.com') ||
-                        retroCarHost.endsWith('twitter.com') ||
-                        retroCarHost.endsWith('x.com');
+                    final bool retroCarIsSocial =
+                        retroCarHost.endsWith('facebook.com') ||
+                            retroCarHost.endsWith('instagram.com') ||
+                            retroCarHost.endsWith('twitter.com') ||
+                            retroCarHost.endsWith('x.com');
 
                     if (retroCarIsSocial) {
                       await retroCarOpenExternal(retroCarUri);
@@ -1622,11 +1768,11 @@ class _RetroCarHarborState extends State<RetroCarHarbor>
 
                     final String retroCarHost =
                     retroCarUri.host.toLowerCase();
-                    final bool retroCarIsSocial = retroCarHost
-                        .endsWith('facebook.com') ||
-                        retroCarHost.endsWith('instagram.com') ||
-                        retroCarHost.endsWith('twitter.com') ||
-                        retroCarHost.endsWith('x.com');
+                    final bool retroCarIsSocial =
+                        retroCarHost.endsWith('facebook.com') ||
+                            retroCarHost.endsWith('instagram.com') ||
+                            retroCarHost.endsWith('twitter.com') ||
+                            retroCarHost.endsWith('x.com');
 
                     if (retroCarIsSocial) {
                       await retroCarOpenExternal(retroCarUri);
@@ -1703,10 +1849,24 @@ Future<void> main() async {
 
   tz_data.initializeTimeZones();
 
+  final RetroCarDeviceProfile deviceProfile = RetroCarDeviceProfile();
+  final RetroCarAnalyticsSpyService analyticsSpyService =
+  RetroCarAnalyticsSpyService();
+
   runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: RetroCarHall(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<RetroCarAppBloc>(
+          create: (_) => RetroCarAppBloc(
+            analyticsSpyService: analyticsSpyService,
+            deviceProfile: deviceProfile,
+          ),
+        ),
+      ],
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: RetroCarHall(),
+      ),
     ),
   );
 }
